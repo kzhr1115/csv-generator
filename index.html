@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Generator</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #08080a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 8px #00ff8833; }
+    50% { box-shadow: 0 0 20px #00ff8855; }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: #0d0d10;
+    border: 1px solid #1a1a22;
+    border-radius: 3px;
+    overflow: hidden;
+    animation: slide-in 0.4s ease-out;
+  }
+
+  .accent-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff88, transparent);
+  }
+
+  .header {
+    padding: 24px 28px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .indicator {
+    width: 7px; height: 7px;
+    background: #00ff88;
+    border-radius: 1px;
+    animation: pulse-glow 2.5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .header h1 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccc;
+    letter-spacing: 0.1em;
+  }
+
+  .header p {
+    margin-top: 3px;
+    font-size: 10px;
+    color: #3a3a44;
+    letter-spacing: 0.04em;
+  }
+
+  .divider { height: 1px; background: #151518; }
+
+  .body { padding: 24px 28px 28px; }
+
+  .section { margin-bottom: 24px; }
+  .section:last-of-type { margin-bottom: 28px; }
+
+  .section-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: #555;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .size-row { display: flex; gap: 8px; }
+
+  .size-input {
+    flex: 1;
+    background: #08080a;
+    border: 1px solid #1a1a22;
+    border-radius: 2px;
+    color: #00ff88;
+    font-size: 26px;
+    font-weight: 300;
+    font-family: inherit;
+    padding: 10px 14px;
+    outline: none;
+    caret-color: #00ff88;
+    transition: border-color 0.2s;
+    line-height: 1.2;
+  }
+  .size-input:focus { border-color: #00ff8844; }
+
+  .unit-buttons { display: flex; flex-direction: column; gap: 3px; }
+
+  .unit-btn {
+    flex: 1;
+    min-width: 48px;
+    padding: 0 10px;
+    background: transparent;
+    color: #3a3a44;
+    border: 1px solid #1a1a22;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .unit-btn.active {
+    background: #00ff88;
+    color: #08080a;
+    border-color: #00ff88;
+  }
+
+  .bytes-display {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: #08080a;
+    border: 1px solid #111114;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bytes-display .eq { color: #2a2a33; font-size: 12px; font-weight: 500; }
+  .bytes-display .val { color: #00ff88; font-size: 12px; font-weight: 400; opacity: 0.8; }
+  .bytes-display .unit { color: #2a2a33; font-size: 10px; }
+
+  .enc-buttons { display: flex; gap: 5px; }
+
+  .enc-btn {
+    flex: 1;
+    padding: 10px 6px;
+    background: transparent;
+    color: #3a3a44;
+    border: 1px solid #1a1a22;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 400;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .enc-btn.active {
+    background: #00ff88;
+    color: #08080a;
+    border-color: #00ff88;
+    font-weight: 600;
+  }
+
+  .generate-btn {
+    width: 100%;
+    padding: 14px;
+    background: #00ff88;
+    color: #08080a;
+    border: none;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .generate-btn:hover {
+    background: #00dd77;
+    box-shadow: 0 0 30px #00ff8822;
+  }
+  .generate-btn:disabled {
+    background: #151518;
+    color: #2a2a33;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 46px;
+    background: #08080a;
+    border: 1px solid #1a1a22;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #00ff8811, #00ff8833);
+    transition: width 0.3s ease;
+  }
+  .progress-fill.done {
+    background: linear-gradient(90deg, #00ff8833, #00ff8855);
+  }
+  .progress-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00ff88aa;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .progress-text.done { color: #00ff88; }
+
+  .warning {
+    margin-top: 10px;
+    font-size: 9px;
+    color: #665522;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="accent-line"></div>
+
+  <div class="header">
+    <div class="indicator"></div>
+    <div>
+      <h1>CSV_GENERATOR</h1>
+      <p>指定サイズのテスト用CSVを生成します</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="body">
+    <!-- TARGET SIZE -->
+    <div class="section">
+      <label class="section-label">TARGET SIZE</label>
+      <div class="size-row">
+        <input type="number" class="size-input" id="sizeInput" value="200" min="1">
+        <div class="unit-buttons" id="unitButtons">
+          <button class="unit-btn" data-unit="KB" data-bytes="1000">KB</button>
+          <button class="unit-btn active" data-unit="MB" data-bytes="1000000">MB</button>
+          <button class="unit-btn" data-unit="GB" data-bytes="1000000000">GB</button>
+        </div>
+      </div>
+      <div class="bytes-display">
+        <span class="eq">=</span>
+        <span class="val" id="bytesValue">200,000,000</span>
+        <span class="unit">bytes</span>
+      </div>
+    </div>
+
+    <!-- ENCODING -->
+    <div class="section">
+      <label class="section-label">ENCODING</label>
+      <div class="enc-buttons" id="encButtons">
+        <button class="enc-btn active" data-enc="UTF-8 BOM">UTF-8 BOM</button>
+        <button class="enc-btn" data-enc="UTF-8">UTF-8</button>
+        <button class="enc-btn" data-enc="Shift-JIS">Shift-JIS</button>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <button class="generate-btn" id="generateBtn">GENERATE CSV</button>
+
+    <div class="progress-bar hidden" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+      <div class="progress-text" id="progressText">GENERATING... 0%</div>
+    </div>
+
+    <p class="warning hidden" id="warning">⚠ 大容量ファイルの生成にはメモリと時間を要します。ブラウザがフリーズする可能性があります。</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  // State
+  let size = 200;
+  let unitBytes = 1000000;
+  let unitLabel = 'MB';
+  let encoding = 'UTF-8 BOM';
+
+  // Elements
+  const sizeInput = document.getElementById('sizeInput');
+  const bytesValue = document.getElementById('bytesValue');
+  const unitButtons = document.getElementById('unitButtons');
+  const encButtons = document.getElementById('encButtons');
+  const generateBtn = document.getElementById('generateBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const warning = document.getElementById('warning');
+
+  function getTargetBytes() {
+    return Math.round((parseFloat(sizeInput.value) || 0) * unitBytes);
+  }
+
+  function updateDisplay() {
+    const target = getTargetBytes();
+    bytesValue.textContent = target.toLocaleString();
+    generateBtn.disabled = target <= 0;
+    warning.classList.toggle('hidden', target <= 500000000);
+  }
+
+  sizeInput.addEventListener('input', updateDisplay);
+
+  unitButtons.addEventListener('click', function(e) {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    unitButtons.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    unitBytes = parseInt(btn.dataset.bytes);
+    unitLabel = btn.dataset.unit;
+    updateDisplay();
+  });
+
+  encButtons.addEventListener('click', function(e) {
+    const btn = e.target.closest('.enc-btn');
+    if (!btn) return;
+    encButtons.querySelectorAll('.enc-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    encoding = btn.dataset.enc;
+  });
+
+  generateBtn.addEventListener('click', async function() {
+    const targetBytes = getTargetBytes();
+    if (targetBytes <= 0) return;
+
+    generateBtn.classList.add('hidden');
+    progressBar.classList.remove('hidden');
+    progressFill.style.width = '0%';
+    progressFill.classList.remove('done');
+    progressText.classList.remove('done');
+    progressText.textContent = 'GENERATING... 0%';
+
+    await new Promise(r => setTimeout(r, 50));
+
+    try {
+      const hasBOM = encoding === 'UTF-8 BOM';
+      const headers = ['id','name','email','age','city','phone','created_at','status','score','note'];
+      const headerLine = headers.join(',') + '\n';
+
+      const names = ['田中太郎','鈴木花子','佐藤一郎','高橋美咲','伊藤健太','渡辺真理','山本大輔','中村さくら','小林誠','加藤由美'];
+      const cities = ['東京','大阪','名古屋','福岡','札幌','横浜','神戸','京都','仙台','広島'];
+      const statuses = ['active','inactive','pending','deleted'];
+
+      const encoder = new TextEncoder();
+      let currentSize = encoder.encode(headerLine).length + (hasBOM ? 3 : 0);
+
+      const chunks = [headerLine];
+      let id = 1;
+      let lastProgress = 0;
+      const batchSize = 1000;
+
+      while (currentSize < targetBytes) {
+        let batch = '';
+        for (let i = 0; i < batchSize && currentSize < targetBytes; i++) {
+          const name = names[id % names.length];
+          const city = cities[id % cities.length];
+          const status = statuses[id % statuses.length];
+          const age = 20 + (id % 50);
+          const score = (id * 17) % 100;
+          const phone = '090-' + String(1000 + (id % 9000)).padStart(4,'0') + '-' + String(1000 + ((id*7) % 9000)).padStart(4,'0');
+          const date = '2024-' + String(1 + (id % 12)).padStart(2,'0') + '-' + String(1 + (id % 28)).padStart(2,'0');
+          const email = 'user' + id + '@example.com';
+          const note = 'テストデータ' + id;
+
+          const row = id+','+name+','+email+','+age+','+city+','+phone+','+date+','+status+','+score+','+note+'\n';
+          const rowByteLen = encoder.encode(row).length;
+
+          if (currentSize + rowByteLen > targetBytes * 1.005) {
+            currentSize = targetBytes;
+            break;
+          }
+
+          batch += row;
+          currentSize += rowByteLen;
+          id++;
+        }
+
+        if (batch) chunks.push(batch);
+
+        const p = Math.min(99, Math.floor((currentSize / targetBytes) * 100));
+        if (p > lastProgress + 1) {
+          lastProgress = p;
+          progressFill.style.width = p + '%';
+          progressText.textContent = 'GENERATING... ' + p + '%';
+          await new Promise(r => setTimeout(r, 0));
+        }
+
+        if (id > 100000000) break;
+      }
+
+      progressFill.style.width = '100%';
+      progressText.textContent = 'GENERATING... 100%';
+      await new Promise(r => setTimeout(r, 100));
+
+      const fullText = chunks.join('');
+      let blob;
+
+      if (encoding === 'Shift-JIS') {
+        blob = new Blob([fullText], { type: 'text/csv;charset=shift_jis' });
+      } else if (hasBOM) {
+        const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+        const encoded = encoder.encode(fullText);
+        blob = new Blob([bom, encoded], { type: 'text/csv;charset=utf-8' });
+      } else {
+        blob = new Blob([fullText], { type: 'text/csv;charset=utf-8' });
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'test_data_' + sizeInput.value + unitLabel + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      progressFill.classList.add('done');
+      progressText.classList.add('done');
+      progressText.textContent = '✓ COMPLETE';
+
+      setTimeout(function() {
+        progressBar.classList.add('hidden');
+        generateBtn.classList.remove('hidden');
+      }, 2500);
+
+    } catch(e) {
+      console.error(e);
+      progressBar.classList.add('hidden');
+      generateBtn.classList.remove('hidden');
+    }
+  });
+
+  updateDisplay();
+})();
+</script>
+</body>
+</html>
