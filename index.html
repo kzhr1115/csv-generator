@@ -1,322 +1,986 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSV Generator</title>
+<title>QA TOOLS</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    min-height: 100vh;
-    background: #08080a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
-    padding: 24px;
-    -webkit-font-smoothing: antialiased;
-  }
+:root {
+  --bg: #08080a;
+  --surface: #0d0d10;
+  --surface2: #111114;
+  --border: #1a1a22;
+  --border2: #151518;
+  --green: #00ff88;
+  --green-dim: #00ff8844;
+  --green-faint: #00ff8811;
+  --text: #ccc;
+  --muted: #555;
+  --muted2: #3a3a44;
+  --muted3: #2a2a33;
+  --sidebar-w: 220px;
+  --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+}
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
 
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 8px #00ff8833; }
-    50% { box-shadow: 0 0 20px #00ff8855; }
-  }
-  @keyframes slide-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px #00ff8833; }
+  50% { box-shadow: 0 0 20px #00ff8855; }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
-  .card {
-    width: 100%;
-    max-width: 480px;
-    background: #0d0d10;
-    border: 1px solid #1a1a22;
-    border-radius: 3px;
-    overflow: hidden;
-    animation: slide-in 0.4s ease-out;
-  }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--font);
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
 
-  .accent-line {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ff88, transparent);
-  }
+/* ===================== SIDEBAR ===================== */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
 
-  .header {
-    padding: 24px 28px 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+.sidebar-header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
 
-  .indicator {
-    width: 7px; height: 7px;
-    background: #00ff88;
-    border-radius: 1px;
-    animation: pulse-glow 2.5s ease-in-out infinite;
-    flex-shrink: 0;
-  }
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .header h1 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #ccc;
-    letter-spacing: 0.1em;
-  }
+.logo-indicator {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 1px;
+  animation: pulse-glow 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
 
-  .header p {
-    margin-top: 3px;
-    font-size: 10px;
-    color: #3a3a44;
-    letter-spacing: 0.04em;
-  }
+.logo-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.12em;
+}
 
-  .divider { height: 1px; background: #151518; }
+.logo-sub {
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  padding-left: 14px;
+}
 
-  .body { padding: 24px 28px 28px; }
+.sidebar-section-label {
+  padding: 16px 18px 6px;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
 
-  .section { margin-bottom: 24px; }
-  .section:last-of-type { margin-bottom: 28px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
 
-  .section-label {
-    display: block;
-    font-size: 10px;
-    font-weight: 500;
-    color: #555;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    font-family: 'JetBrains Mono', monospace;
-  }
+.nav-item:hover {
+  background: var(--border2);
+}
 
-  .size-row { display: flex; gap: 8px; }
+.nav-item.active {
+  background: #00ff880a;
+  border-left-color: var(--green);
+}
 
-  .size-input {
-    flex: 1;
-    background: #08080a;
-    border: 1px solid #1a1a22;
-    border-radius: 2px;
-    color: #00ff88;
-    font-size: 26px;
-    font-weight: 300;
-    font-family: inherit;
-    padding: 10px 14px;
-    outline: none;
-    caret-color: #00ff88;
-    transition: border-color 0.2s;
-    line-height: 1.2;
-  }
-  .size-input:focus { border-color: #00ff8844; }
+.nav-item.active .nav-label { color: var(--green); }
+.nav-item.active .nav-icon { color: var(--green); }
 
-  .unit-buttons { display: flex; flex-direction: column; gap: 3px; }
+.nav-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
 
-  .unit-btn {
-    flex: 1;
-    min-width: 48px;
-    padding: 0 10px;
-    background: transparent;
-    color: #3a3a44;
-    border: 1px solid #1a1a22;
-    border-radius: 2px;
-    font-size: 10px;
-    font-weight: 600;
-    font-family: inherit;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .unit-btn.active {
-    background: #00ff88;
-    color: #08080a;
-    border-color: #00ff88;
-  }
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted2);
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
 
-  .bytes-display {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #08080a;
-    border: 1px solid #111114;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .bytes-display .eq { color: #2a2a33; font-size: 12px; font-weight: 500; }
-  .bytes-display .val { color: #00ff88; font-size: 12px; font-weight: 400; opacity: 0.8; }
-  .bytes-display .unit { color: #2a2a33; font-size: 10px; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 8px;
+  padding: 2px 5px;
+  background: var(--border);
+  color: var(--muted);
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
 
-  .enc-buttons { display: flex; gap: 5px; }
+.nav-item.active .nav-badge {
+  background: #00ff8822;
+  color: var(--green);
+}
 
-  .enc-btn {
-    flex: 1;
-    padding: 10px 6px;
-    background: transparent;
-    color: #3a3a44;
-    border: 1px solid #1a1a22;
-    border-radius: 2px;
-    font-size: 10px;
-    font-weight: 400;
-    font-family: inherit;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .enc-btn.active {
-    background: #00ff88;
-    color: #08080a;
-    border-color: #00ff88;
-    font-weight: 600;
-  }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}
 
-  .generate-btn {
-    width: 100%;
-    padding: 14px;
-    background: #00ff88;
-    color: #08080a;
-    border: none;
-    border-radius: 2px;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: inherit;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .generate-btn:hover {
-    background: #00dd77;
-    box-shadow: 0 0 30px #00ff8822;
-  }
-  .generate-btn:disabled {
-    background: #151518;
-    color: #2a2a33;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+/* ===================== MAIN ===================== */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-  .progress-bar {
-    width: 100%;
-    height: 46px;
-    background: #08080a;
-    border: 1px solid #1a1a22;
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-  .progress-fill {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    background: linear-gradient(90deg, #00ff8811, #00ff8833);
-    transition: width 0.3s ease;
-  }
-  .progress-fill.done {
-    background: linear-gradient(90deg, #00ff8833, #00ff8855);
-  }
-  .progress-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00ff88aa;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-  }
-  .progress-text.done { color: #00ff88; }
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .warning {
-    margin-top: 10px;
-    font-size: 9px;
-    color: #665522;
-    letter-spacing: 0.02em;
-    line-height: 1.6;
-  }
+/* Accent line top */
+.accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  flex-shrink: 0;
+}
 
-  .hidden { display: none; }
+/* ===================== TOOL PANELS ===================== */
+.tool-panel {
+  display: none;
+  flex: 1;
+  animation: fade-in 0.3s ease-out;
+}
+.tool-panel.active { display: flex; flex-direction: column; }
+
+/* ===================== TOOL: CSV GENERATOR ===================== */
+#tool-csv {
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 24px 28px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.indicator {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 1px;
+  animation: pulse-glow 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.card-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.1em;
+}
+.card-header p {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.card-body { padding: 24px 28px 28px; }
+
+.section { margin-bottom: 24px; }
+.section:last-of-type { margin-bottom: 28px; }
+
+.section-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.size-row { display: flex; gap: 8px; }
+
+.size-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--green);
+  font-size: 26px;
+  font-weight: 300;
+  font-family: inherit;
+  padding: 10px 14px;
+  outline: none;
+  caret-color: var(--green);
+  transition: border-color 0.2s;
+  line-height: 1.2;
+}
+.size-input:focus { border-color: var(--green-dim); }
+
+.unit-buttons { display: flex; flex-direction: column; gap: 3px; }
+
+.unit-btn {
+  flex: 1;
+  min-width: 48px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--muted2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.unit-btn.active {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+}
+
+.bytes-display {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid #111114;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bytes-display .eq { color: var(--muted3); font-size: 12px; font-weight: 500; }
+.bytes-display .val { color: var(--green); font-size: 12px; font-weight: 400; opacity: 0.8; }
+.bytes-display .unit { color: var(--muted3); font-size: 10px; }
+
+.enc-buttons { display: flex; gap: 5px; }
+
+.enc-btn {
+  flex: 1;
+  padding: 10px 6px;
+  background: transparent;
+  color: var(--muted2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 400;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.enc-btn.active {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+  font-weight: 600;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--green);
+  color: var(--bg);
+  border: none;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.generate-btn:hover { background: #00dd77; box-shadow: 0 0 30px #00ff8822; }
+.generate-btn:disabled {
+  background: var(--border2);
+  color: var(--muted3);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 46px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-faint), #00ff8833);
+  transition: width 0.3s ease;
+}
+.progress-fill.done { background: linear-gradient(90deg, #00ff8833, #00ff8855); }
+.progress-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00ff88aa;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.progress-text.done { color: var(--green); }
+
+.warning {
+  margin-top: 10px;
+  font-size: 9px;
+  color: #665522;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+.hidden { display: none; }
+
+/* ===================== TOOL: GIF MAKER ===================== */
+#tool-gif {
+  flex-direction: row;
+  overflow: hidden;
+  height: calc(100vh - 2px);
+}
+
+/* GIF Left panel */
+.gif-left {
+  width: 320px;
+  min-width: 320px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.gif-section {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.gif-section-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gif-section-label span {
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* Upload */
+.upload-zone {
+  border: 1px dashed var(--border);
+  border-radius: 2px;
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--green);
+  background: var(--green-faint);
+}
+.upload-zone-icon { font-size: 20px; margin-bottom: 6px; opacity: 0.5; }
+.upload-zone strong {
+  display: block;
+  font-size: 10px;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+}
+.upload-zone p { font-size: 9px; color: var(--muted); letter-spacing: 0.04em; }
+#gif-file-input { display: none; }
+
+/* Thumbnails */
+.gif-thumbs-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+}
+.gif-thumbs-wrap::-webkit-scrollbar { width: 3px; }
+.gif-thumbs-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+.thumb-empty {
+  grid-column: 1/-1;
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  padding: 20px 0;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+}
+
+.thumb-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: grab;
+  transition: all 0.15s;
+  background: var(--bg);
+}
+.thumb-item:hover { border-color: var(--green); }
+.thumb-item.dragging { opacity: 0.35; }
+.thumb-item.drag-over-target { border-color: var(--green); box-shadow: 0 0 0 2px var(--green-dim); }
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.thumb-num {
+  position: absolute;
+  top: 2px; left: 2px;
+  background: rgba(0,0,0,0.75);
+  color: var(--green);
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 1px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+.thumb-del {
+  position: absolute;
+  top: 2px; right: 2px;
+  background: rgba(0,0,0,0.75);
+  color: #ff5566;
+  border: none;
+  border-radius: 1px;
+  width: 14px; height: 14px;
+  cursor: pointer;
+  font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+.thumb-item:hover .thumb-del { opacity: 1; }
+
+/* GIF Settings */
+.gif-settings {
+  padding: 14px 18px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.setting-row { margin-bottom: 14px; }
+.setting-row:last-of-type { margin-bottom: 0; }
+
+.setting-row label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.setting-row label em {
+  font-style: normal;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--green-dim);
+}
+
+.tab-row { display: flex; gap: 4px; }
+.tab-btn {
+  flex: 1;
+  padding: 6px 4px;
+  background: transparent;
+  color: var(--muted2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.tab-btn.active {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+  font-weight: 700;
+}
+
+.gif-btn {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.gif-btn-primary {
+  background: var(--green);
+  color: var(--bg);
+}
+.gif-btn-primary:hover:not(:disabled) { background: #00dd77; box-shadow: 0 0 20px #00ff8822; }
+.gif-btn-primary:disabled { background: var(--border2); color: var(--muted3); cursor: not-allowed; }
+
+.gif-btn-secondary {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green-dim);
+  margin-top: 5px;
+}
+.gif-btn-secondary:hover:not(:disabled) { background: var(--green-faint); }
+.gif-btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.gif-worker-msg {
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  min-height: 14px;
+}
+
+/* GIF Right panel */
+.gif-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gif-preview-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.preview-label {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.preview-meta {
+  display: flex;
+  gap: 14px;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.preview-meta strong { color: var(--green); font-weight: 500; }
+
+.gif-preview-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-conic-gradient(rgba(255,255,255,0.015) 0% 25%, transparent 0% 50%)
+    0 0 / 16px 16px;
+}
+
+.gif-placeholder {
+  text-align: center;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  line-height: 2;
+}
+.gif-placeholder-icon { font-size: 48px; opacity: 0.1; display: block; margin-bottom: 12px; }
+
+#gif-canvas {
+  max-width: 92%;
+  max-height: 92%;
+  border-radius: 2px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  display: none;
+  image-rendering: pixelated;
+}
+
+#gif-preview-img {
+  max-width: 92%;
+  max-height: 92%;
+  border-radius: 2px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  display: none;
+}
+
+/* GIF Progress */
+.gif-progress-wrap {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  display: none;
+}
+
+.gif-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+.gif-progress-meta strong { color: var(--green); }
+
+.gif-progress-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.gif-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green), #00cc66);
+  border-radius: 1px;
+  transition: width 0.15s;
+  box-shadow: 0 0 6px var(--green-dim);
+}
+
+/* Loop blink */
+.loop-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 5px;
+  animation: blink 1.2s infinite;
+}
 </style>
 </head>
 <body>
 
-<div class="card">
+<!-- ==================== SIDEBAR ==================== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="logo-indicator"></div>
+      <div class="logo-text">QA_TOOLS</div>
+    </div>
+    <div class="logo-sub">Internal test utilities</div>
+  </div>
+
+  <div class="sidebar-section-label">TOOLS</div>
+
+  <div class="nav-item active" data-tool="csv">
+    <span class="nav-icon">⚙</span>
+    <span class="nav-label">CSV Generator</span>
+    <span class="nav-badge">v1</span>
+  </div>
+
+  <div class="nav-item" data-tool="gif">
+    <span class="nav-icon">▶</span>
+    <span class="nav-label">GIF Maker</span>
+    <span class="nav-badge">new</span>
+  </div>
+
+  <div class="sidebar-footer">
+    © QA TOOLS<br>
+    internal use only
+  </div>
+</nav>
+
+<!-- ==================== MAIN ==================== -->
+<main class="main">
   <div class="accent-line"></div>
 
-  <div class="header">
-    <div class="indicator"></div>
-    <div>
-      <h1>CSV_GENERATOR</h1>
-      <p>指定サイズのテスト用CSVを生成します</p>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="body">
-    <!-- TARGET SIZE -->
-    <div class="section">
-      <label class="section-label">TARGET SIZE</label>
-      <div class="size-row">
-        <input type="number" class="size-input" id="sizeInput" value="200" min="1">
-        <div class="unit-buttons" id="unitButtons">
-          <button class="unit-btn" data-unit="KB" data-bytes="1000">KB</button>
-          <button class="unit-btn active" data-unit="MB" data-bytes="1000000">MB</button>
-          <button class="unit-btn" data-unit="GB" data-bytes="1000000000">GB</button>
+  <!-- ====== TOOL: CSV GENERATOR ====== -->
+  <div id="tool-csv" class="tool-panel active">
+    <div class="card">
+      <div class="card-header">
+        <div class="indicator"></div>
+        <div>
+          <h2>CSV_GENERATOR</h2>
+          <p>指定サイズのテスト用CSVを生成します</p>
         </div>
       </div>
-      <div class="bytes-display">
-        <span class="eq">=</span>
-        <span class="val" id="bytesValue">200,000,000</span>
-        <span class="unit">bytes</span>
+      <div class="card-body">
+        <div class="section">
+          <label class="section-label">TARGET SIZE</label>
+          <div class="size-row">
+            <input type="number" class="size-input" id="csv-sizeInput" value="200" min="1">
+            <div class="unit-buttons" id="csv-unitButtons">
+              <button class="unit-btn" data-unit="KB" data-bytes="1000">KB</button>
+              <button class="unit-btn active" data-unit="MB" data-bytes="1000000">MB</button>
+              <button class="unit-btn" data-unit="GB" data-bytes="1000000000">GB</button>
+            </div>
+          </div>
+          <div class="bytes-display">
+            <span class="eq">=</span>
+            <span class="val" id="csv-bytesValue">200,000,000</span>
+            <span class="unit">bytes</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <label class="section-label">ENCODING</label>
+          <div class="enc-buttons" id="csv-encButtons">
+            <button class="enc-btn active" data-enc="UTF-8 BOM">UTF-8 BOM</button>
+            <button class="enc-btn" data-enc="UTF-8">UTF-8</button>
+            <button class="enc-btn" data-enc="Shift-JIS">Shift-JIS</button>
+          </div>
+        </div>
+
+        <button class="generate-btn" id="csv-generateBtn">GENERATE CSV</button>
+
+        <div class="progress-bar hidden" id="csv-progressBar">
+          <div class="progress-fill" id="csv-progressFill"></div>
+          <div class="progress-text" id="csv-progressText">GENERATING... 0%</div>
+        </div>
+
+        <p class="warning hidden" id="csv-warning">⚠ 大容量ファイルの生成にはメモリと時間を要します。ブラウザがフリーズする可能性があります。</p>
       </div>
     </div>
-
-    <!-- ENCODING -->
-    <div class="section">
-      <label class="section-label">ENCODING</label>
-      <div class="enc-buttons" id="encButtons">
-        <button class="enc-btn active" data-enc="UTF-8 BOM">UTF-8 BOM</button>
-        <button class="enc-btn" data-enc="UTF-8">UTF-8</button>
-        <button class="enc-btn" data-enc="Shift-JIS">Shift-JIS</button>
-      </div>
-    </div>
-
-    <!-- GENERATE -->
-    <button class="generate-btn" id="generateBtn">GENERATE CSV</button>
-
-    <div class="progress-bar hidden" id="progressBar">
-      <div class="progress-fill" id="progressFill"></div>
-      <div class="progress-text" id="progressText">GENERATING... 0%</div>
-    </div>
-
-    <p class="warning hidden" id="warning">⚠ 大容量ファイルの生成にはメモリと時間を要します。ブラウザがフリーズする可能性があります。</p>
   </div>
-</div>
+
+  <!-- ====== TOOL: GIF MAKER ====== -->
+  <div id="tool-gif" class="tool-panel">
+
+    <!-- Left: controls -->
+    <div class="gif-left">
+      <div class="gif-section">
+        <div class="gif-section-label">UPLOAD FRAMES</div>
+        <div class="upload-zone" id="gif-upload-zone">
+          <div class="upload-zone-icon">🖼</div>
+          <strong>CLICK OR DROP</strong>
+          <p>PNG / JPG / WebP — 複数選択可</p>
+        </div>
+        <input type="file" id="gif-file-input" accept="image/*" multiple>
+      </div>
+
+      <div class="gif-section" style="padding-bottom:10px; flex-shrink:0;">
+        <div class="gif-section-label">
+          FRAMES
+          <span id="gif-frame-count">0 frames</span>
+        </div>
+        <div class="gif-thumbs-wrap" style="max-height:170px; overflow-y:auto; padding:0;">
+          <div class="thumb-grid" id="gif-thumb-grid">
+            <div class="thumb-empty">画像をアップロードしてください<br>ドラッグで並び替え可能</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gif-settings">
+        <div class="gif-section-label" style="margin-bottom:12px;">SETTINGS</div>
+
+        <div class="setting-row">
+          <label>SPEED <em id="gif-fps-label">10 fps</em></label>
+          <input type="range" id="gif-fps-range" min="1" max="30" value="10" step="1">
+        </div>
+
+        <div class="setting-row">
+          <label style="margin-bottom:6px;">OUTPUT SIZE</label>
+          <div class="tab-row">
+            <div class="tab-btn active" data-size="original">元サイズ</div>
+            <div class="tab-btn" data-size="480">480px</div>
+            <div class="tab-btn" data-size="320">320px</div>
+            <div class="tab-btn" data-size="240">240px</div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label style="margin-bottom:6px;">QUALITY</label>
+          <div class="tab-row" id="gif-quality-tabs">
+            <div class="tab-btn" data-q="1">高品質</div>
+            <div class="tab-btn active" data-q="10">標準</div>
+            <div class="tab-btn" data-q="20">軽量</div>
+          </div>
+        </div>
+
+        <button class="gif-btn gif-btn-primary" id="gif-btn-preview" disabled>▶ PREVIEW</button>
+        <button class="gif-btn gif-btn-secondary" id="gif-btn-download" disabled>⬇ GENERATE & DOWNLOAD</button>
+        <div class="gif-worker-msg" id="gif-worker-msg"></div>
+      </div>
+    </div>
+
+    <!-- Right: preview -->
+    <div class="gif-right">
+      <div class="gif-preview-header">
+        <div class="preview-label">PREVIEW</div>
+        <div class="preview-meta" id="gif-preview-meta" style="display:none;">
+          <span><span class="loop-dot"></span>LOOP</span>
+          <span id="gif-meta-size">—</span>
+          <span id="gif-meta-frames">— frames</span>
+          <span id="gif-meta-fps">— fps</span>
+        </div>
+      </div>
+
+      <div class="gif-preview-area" id="gif-preview-area">
+        <div class="gif-placeholder" id="gif-placeholder">
+          <span class="gif-placeholder-icon">🎞</span>
+          画像をアップロードして<br>
+          PREVIEW を押してください
+        </div>
+        <canvas id="gif-canvas"></canvas>
+        <img id="gif-preview-img" alt="GIF preview">
+      </div>
+
+      <div class="gif-progress-wrap" id="gif-progress-wrap">
+        <div class="gif-progress-meta">
+          <span id="gif-progress-text">GENERATING...</span>
+          <strong id="gif-progress-pct">0%</strong>
+        </div>
+        <div class="gif-progress-bar">
+          <div class="gif-progress-fill" id="gif-progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- gif.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 
 <script>
+// ============================================================
+// SIDEBAR NAVIGATION
+// ============================================================
+document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
+  item.addEventListener('click', () => {
+    const tool = item.dataset.tool;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tool-' + tool).classList.add('active');
+  });
+});
+
+// ============================================================
+// CSV GENERATOR (original logic)
+// ============================================================
 (function() {
-  // State
   let size = 200;
   let unitBytes = 1000000;
   let unitLabel = 'MB';
   let encoding = 'UTF-8 BOM';
 
-  // Elements
-  const sizeInput = document.getElementById('sizeInput');
-  const bytesValue = document.getElementById('bytesValue');
-  const unitButtons = document.getElementById('unitButtons');
-  const encButtons = document.getElementById('encButtons');
-  const generateBtn = document.getElementById('generateBtn');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
-  const progressText = document.getElementById('progressText');
-  const warning = document.getElementById('warning');
+  const sizeInput = document.getElementById('csv-sizeInput');
+  const bytesValue = document.getElementById('csv-bytesValue');
+  const unitButtons = document.getElementById('csv-unitButtons');
+  const encButtons = document.getElementById('csv-encButtons');
+  const generateBtn = document.getElementById('csv-generateBtn');
+  const progressBar = document.getElementById('csv-progressBar');
+  const progressFill = document.getElementById('csv-progressFill');
+  const progressText = document.getElementById('csv-progressText');
+  const warning = document.getElementById('csv-warning');
 
   function getTargetBytes() {
     return Math.round((parseFloat(sizeInput.value) || 0) * unitBytes);
@@ -373,7 +1037,6 @@
 
       const encoder = new TextEncoder();
       let currentSize = encoder.encode(headerLine).length + (hasBOM ? 3 : 0);
-
       const chunks = [headerLine];
       let id = 1;
       let lastProgress = 0;
@@ -391,20 +1054,15 @@
           const date = '2024-' + String(1 + (id % 12)).padStart(2,'0') + '-' + String(1 + (id % 28)).padStart(2,'0');
           const email = 'user' + id + '@example.com';
           const note = 'テストデータ' + id;
-
           const row = id+','+name+','+email+','+age+','+city+','+phone+','+date+','+status+','+score+','+note+'\n';
           const rowByteLen = encoder.encode(row).length;
 
-          if (currentSize + rowByteLen > targetBytes * 1.005) {
-            currentSize = targetBytes;
-            break;
-          }
+          if (currentSize + rowByteLen > targetBytes * 1.005) { currentSize = targetBytes; break; }
 
           batch += row;
           currentSize += rowByteLen;
           id++;
         }
-
         if (batch) chunks.push(batch);
 
         const p = Math.min(99, Math.floor((currentSize / targetBytes) * 100));
@@ -414,7 +1072,6 @@
           progressText.textContent = 'GENERATING... ' + p + '%';
           await new Promise(r => setTimeout(r, 0));
         }
-
         if (id > 100000000) break;
       }
 
@@ -424,13 +1081,11 @@
 
       const fullText = chunks.join('');
       let blob;
-
       if (encoding === 'Shift-JIS') {
         blob = new Blob([fullText], { type: 'text/csv;charset=shift_jis' });
       } else if (hasBOM) {
         const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
-        const encoded = encoder.encode(fullText);
-        blob = new Blob([bom, encoded], { type: 'text/csv;charset=utf-8' });
+        blob = new Blob([bom, encoder.encode(fullText)], { type: 'text/csv;charset=utf-8' });
       } else {
         blob = new Blob([fullText], { type: 'text/csv;charset=utf-8' });
       }
@@ -461,6 +1116,299 @@
   });
 
   updateDisplay();
+})();
+
+// ============================================================
+// GIF MAKER
+// ============================================================
+(function() {
+  const state = {
+    images: [],
+    gifBlob: null,
+    fps: 10,
+    quality: 10,
+    outputSize: 'original',
+    isGenerating: false,
+    previewInterval: null,
+    previewFrame: 0,
+  };
+
+  const uploadZone = document.getElementById('gif-upload-zone');
+  const fileInput = document.getElementById('gif-file-input');
+  const thumbGrid = document.getElementById('gif-thumb-grid');
+  const frameCountEl = document.getElementById('gif-frame-count');
+  const fpsRange = document.getElementById('gif-fps-range');
+  const fpsLabel = document.getElementById('gif-fps-label');
+  const btnPreview = document.getElementById('gif-btn-preview');
+  const btnDownload = document.getElementById('gif-btn-download');
+  const canvas = document.getElementById('gif-canvas');
+  const previewImg = document.getElementById('gif-preview-img');
+  const placeholder = document.getElementById('gif-placeholder');
+  const previewMeta = document.getElementById('gif-preview-meta');
+  const metaSize = document.getElementById('gif-meta-size');
+  const metaFrames = document.getElementById('gif-meta-frames');
+  const metaFps = document.getElementById('gif-meta-fps');
+  const progressWrap = document.getElementById('gif-progress-wrap');
+  const progressFill = document.getElementById('gif-progress-fill');
+  const progressText = document.getElementById('gif-progress-text');
+  const progressPct = document.getElementById('gif-progress-pct');
+  const workerMsg = document.getElementById('gif-worker-msg');
+
+  // Upload
+  uploadZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => handleFiles(e.target.files));
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  async function handleFiles(files) {
+    const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!imgs.length) return;
+    for (const file of imgs) {
+      const src = await readFile(file);
+      const img = new Image();
+      img.src = src;
+      await new Promise(r => img.onload = r);
+      state.images.push({ file, src, img });
+    }
+    renderThumbs();
+    updateControls();
+    stopPreview();
+    state.gifBlob = null;
+  }
+
+  function readFile(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  let dragSrc = null;
+
+  function renderThumbs() {
+    thumbGrid.innerHTML = '';
+    frameCountEl.textContent = state.images.length + ' frames';
+
+    if (!state.images.length) {
+      thumbGrid.innerHTML = '<div class="thumb-empty">画像をアップロードしてください<br>ドラッグで並び替え可能</div>';
+      return;
+    }
+
+    state.images.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'thumb-item';
+      div.draggable = true;
+      div.dataset.index = i;
+
+      const img = document.createElement('img');
+      img.src = item.src;
+
+      const num = document.createElement('div');
+      num.className = 'thumb-num';
+      num.textContent = i + 1;
+
+      const del = document.createElement('button');
+      del.className = 'thumb-del';
+      del.textContent = '✕';
+      del.addEventListener('click', e => {
+        e.stopPropagation();
+        state.images.splice(i, 1);
+        renderThumbs();
+        updateControls();
+        stopPreview();
+        state.gifBlob = null;
+        btnDownload.disabled = true;
+      });
+
+      div.append(img, num, del);
+      thumbGrid.appendChild(div);
+
+      div.addEventListener('dragstart', () => { dragSrc = i; div.classList.add('dragging'); });
+      div.addEventListener('dragend', () => div.classList.remove('dragging'));
+      div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drag-over-target'); });
+      div.addEventListener('dragleave', () => div.classList.remove('drag-over-target'));
+      div.addEventListener('drop', e => {
+        e.preventDefault();
+        div.classList.remove('drag-over-target');
+        if (dragSrc === null || dragSrc === i) return;
+        const moved = state.images.splice(dragSrc, 1)[0];
+        state.images.splice(i, 0, moved);
+        renderThumbs();
+        stopPreview();
+        state.gifBlob = null;
+      });
+    });
+  }
+
+  function updateControls() {
+    const ok = state.images.length >= 2;
+    btnPreview.disabled = !ok;
+  }
+
+  // FPS
+  fpsRange.addEventListener('input', () => {
+    state.fps = parseInt(fpsRange.value);
+    fpsLabel.textContent = state.fps + ' fps';
+    if (state.previewInterval) { stopPreview(); startCanvasPreview(); }
+  });
+
+  // Size tabs
+  document.querySelectorAll('[data-size]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('[data-size]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.outputSize = tab.dataset.size;
+    });
+  });
+
+  // Quality tabs
+  document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.quality = parseInt(tab.dataset.q);
+    });
+  });
+
+  function getOutputDimensions() {
+    const first = state.images[0].img;
+    if (state.outputSize === 'original') return { w: first.naturalWidth, h: first.naturalHeight };
+    const tw = parseInt(state.outputSize);
+    return { w: tw, h: Math.round(tw * (first.naturalHeight / first.naturalWidth)) };
+  }
+
+  function startCanvasPreview() {
+    if (!state.images.length) return;
+    const { w, h } = getOutputDimensions();
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.display = 'block';
+    previewImg.style.display = 'none';
+    placeholder.style.display = 'none';
+    previewMeta.style.display = 'flex';
+    metaSize.textContent = w + '×' + h;
+    metaFrames.textContent = state.images.length + ' frames';
+    metaFps.textContent = state.fps + ' fps';
+
+    const ctx = canvas.getContext('2d');
+    state.previewFrame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(state.images[state.previewFrame].img, 0, 0, w, h);
+      state.previewFrame = (state.previewFrame + 1) % state.images.length;
+    }
+    draw();
+    state.previewInterval = setInterval(draw, 1000 / state.fps);
+  }
+
+  function stopPreview() {
+    if (state.previewInterval) { clearInterval(state.previewInterval); state.previewInterval = null; }
+  }
+
+  btnPreview.addEventListener('click', () => {
+    if (state.images.length < 2) return;
+    stopPreview();
+    state.gifBlob = null;
+    workerMsg.textContent = '';
+    startCanvasPreview();
+    // Enable download after preview
+    if (!state.isGenerating) btnDownload.disabled = false;
+  });
+
+  btnDownload.addEventListener('click', async () => {
+    if (state.gifBlob) { downloadBlob(state.gifBlob); return; }
+    await generateGif();
+  });
+
+  async function generateGif() {
+    if (state.isGenerating || state.images.length < 2) return;
+    state.isGenerating = true;
+    stopPreview();
+
+    progressWrap.style.display = 'block';
+    progressFill.style.width = '0%';
+    progressText.textContent = 'GIF GENERATING...';
+    progressPct.textContent = '0%';
+    btnPreview.disabled = true;
+    btnDownload.disabled = true;
+    workerMsg.textContent = '';
+
+    const { w, h } = getOutputDimensions();
+    const delay = Math.round(1000 / state.fps);
+
+    const off = document.createElement('canvas');
+    off.width = w; off.height = h;
+    const ctx = off.getContext('2d');
+
+    const gif = new GIF({
+      workers: 2,
+      quality: state.quality,
+      width: w, height: h,
+      workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
+    });
+
+    gif.on('progress', p => {
+      const pct = Math.round(p * 100);
+      progressFill.style.width = pct + '%';
+      progressPct.textContent = pct + '%';
+    });
+
+    gif.on('finished', blob => {
+      state.gifBlob = blob;
+      state.isGenerating = false;
+      progressWrap.style.display = 'none';
+      btnPreview.disabled = state.images.length < 2;
+      btnDownload.disabled = false;
+
+      const url = URL.createObjectURL(blob);
+      canvas.style.display = 'none';
+      previewImg.src = url;
+      previewImg.style.display = 'block';
+      placeholder.style.display = 'none';
+      previewMeta.style.display = 'flex';
+      metaSize.textContent = w + '×' + h + ' / ' + Math.round(blob.size/1024) + 'KB';
+
+      workerMsg.textContent = '✓ ' + Math.round(blob.size/1024) + ' KB — 完成';
+      workerMsg.style.color = 'var(--green)';
+      downloadBlob(blob);
+    });
+
+    gif.on('error', () => {
+      state.isGenerating = false;
+      progressWrap.style.display = 'none';
+      btnPreview.disabled = state.images.length < 2;
+      btnDownload.disabled = false;
+      workerMsg.textContent = '⚠ Workerエラー。ローカルサーバーで開いてください。';
+      workerMsg.style.color = '#ff5566';
+      startCanvasPreview();
+    });
+
+    for (let i = 0; i < state.images.length; i++) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(state.images[i].img, 0, 0, w, h);
+      progressText.textContent = 'FRAME ' + (i+1) + ' / ' + state.images.length;
+      gif.addFrame(off, { delay, copy: true });
+      await new Promise(r => setTimeout(r, 8));
+    }
+
+    gif.render();
+  }
+
+  function downloadBlob(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'animation_' + state.fps + 'fps_' + Date.now() + '.gif';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
 })();
 </script>
 </body>
