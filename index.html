@@ -80,10 +80,14 @@ body { background: var(--bg); font-family: var(--font); display: flex; -webkit-f
 .column-item-header { display: flex; align-items: center; gap: 8px; padding: 5px 10px; cursor: pointer; background: var(--bg); user-select: none; transition: background 0.15s; }
 .column-item-header:hover { background: var(--border2); }
 .column-item.has-data .column-item-header { border-left: 2px solid var(--green); }
+.column-item.is-pad .column-item-header { border-left: 2px solid #ffaa00; }
 .col-name { color: var(--green); font-size: 10px; font-weight: 600; }
 .col-type { color: var(--muted); font-size: 8px; padding: 1px 5px; background: var(--surface2); border-radius: 1px; letter-spacing: 0.06em; }
 .col-data-badge { margin-left: auto; font-size: 8px; color: var(--green); letter-spacing: 0.04em; }
 .col-auto-badge { margin-left: auto; font-size: 8px; color: var(--muted); letter-spacing: 0.04em; }
+.col-pad-btn { font-size: 8px; padding: 2px 7px; background: transparent; border: 1px solid #554400; color: #886600; border-radius: 2px; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.col-pad-btn:hover { border-color: #ffaa00; color: #ffaa00; }
+.col-pad-btn.selected { background: #ffaa00; color: #000; border-color: #ffaa00; font-weight: 700; }
 .col-arrow { font-size: 8px; color: var(--muted); transition: transform 0.15s; margin-left: 4px; }
 .column-item.open .col-arrow { transform: rotate(90deg); }
 .column-data-input { display: none; padding: 8px 10px; background: var(--surface); border-top: 1px solid var(--border2); }
@@ -516,12 +520,20 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     return 'text';
   }
 
+  const TEXT_TYPES = ['text', 'note', 'url', 'email', 'name', 'city', 'integer', 'number', 'age', 'phone'];
+  let padColIdx = -1; // -1 = auto
+
   function renderColumnTags() {
-    columnTags.innerHTML = columns.map((c, i) =>
-      `<div class="column-item" id="col-item-${i}">
+    columnTags.innerHTML = columns.map((c, i) => {
+      const isTextType = TEXT_TYPES.includes(c.type);
+      const padBtn = isTextType
+        ? `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`
+        : '';
+      return `<div class="column-item" id="col-item-${i}">
         <div class="column-item-header" onclick="toggleCol(${i})">
           <span class="col-name">${c.name}</span>
           <span class="col-type">${c.type}</span>
+          ${padBtn}
           <span class="col-auto-badge" id="col-badge-${i}">自動生成</span>
           <span class="col-arrow">▶</span>
         </div>
@@ -529,9 +541,31 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
           <textarea id="col-textarea-${i}" placeholder="実際のデータを1行1件で入力&#10;例）&#10;山田太郎&#10;鈴木花子&#10;田中一郎" oninput="onColInput(${i})"></textarea>
           <div class="input-hint">1行1件で入力してください。入力したデータを行数分ループして使用します。空の場合は自動生成されます。</div>
         </div>
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
+    padColIdx = -1;
   }
+
+  window.selectPadCol = function(e, i) {
+    e.stopPropagation();
+    // toggle off if already selected
+    if (padColIdx === i) {
+      padColIdx = -1;
+      document.getElementById('col-item-' + i).classList.remove('is-pad');
+      document.getElementById('col-pad-' + i).classList.remove('selected');
+      return;
+    }
+    // deselect previous
+    if (padColIdx >= 0) {
+      const prev = document.getElementById('col-item-' + padColIdx);
+      const prevBtn = document.getElementById('col-pad-' + padColIdx);
+      if (prev) prev.classList.remove('is-pad');
+      if (prevBtn) prevBtn.classList.remove('selected');
+    }
+    padColIdx = i;
+    document.getElementById('col-item-' + i).classList.add('is-pad');
+    document.getElementById('col-pad-' + i).classList.add('selected');
+  };
 
   window.toggleCol = function(i) {
     const item = document.getElementById('col-item-' + i);
@@ -722,13 +756,12 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     // Measure current total
     let currentDataBytes = rows.reduce((s, r) => s + encoder.encode(r).length, 0);
 
-    // Find the padding column: last text-like column that has NO fixed values
-    const padColIdx = (() => {
+    // Use user-selected pad column, or auto-detect
+    const resolvedPadColIdx = padColIdx >= 0 ? padColIdx : (() => {
       for (let i = columns.length - 1; i >= 0; i--) {
-        if (columns[i].fixedValues) continue; // 固定値カラムは除外
-        if (['text','note','url','email','name'].includes(columns[i].type)) return i;
+        if (columns[i].fixedValues) continue;
+        if (TEXT_TYPES.includes(columns[i].type)) return i;
       }
-      // fallback: last column without fixed values
       for (let i = columns.length - 1; i >= 0; i--) {
         if (!columns[i].fixedValues) return i;
       }
@@ -745,14 +778,14 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
       // Rebuild rows with padding inserted into padColIdx
       for (let i = 0; i < totalRows; i++) {
         const rowPad = pad + (i === totalRows - 1 ? 'x'.repeat(extraOnLast) : '');
-        rows[i] = buildRowWithPad(i, padColIdx, rowPad);
+        rows[i] = buildRowWithPad(i, resolvedPadColIdx, rowPad);
       }
     } else if (diff < 0) {
       // Need to trim: truncate padColIdx values
       // Recalculate how much to cut per row
       const cutPerRow = Math.ceil(-diff / totalRows);
       for (let i = 0; i < totalRows; i++) {
-        rows[i] = buildRowTrimmed(i, padColIdx, cutPerRow);
+        rows[i] = buildRowTrimmed(i, resolvedPadColIdx, cutPerRow);
       }
     }
 
