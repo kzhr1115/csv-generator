@@ -525,10 +525,7 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
   function renderColumnTags() {
     columnTags.innerHTML = columns.map((c, i) => {
-      const isTextType = TEXT_TYPES.includes(c.type);
-      const padBtn = isTextType
-        ? `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`
-        : '';
+      const padBtn = `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`;
       return `<div class="column-item" id="col-item-${i}">
         <div class="column-item-header" onclick="toggleCol(${i})">
           <span class="col-name">${c.name}</span>
