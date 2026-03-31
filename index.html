@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,765 +8,193 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --bg: #08080a;
-  --surface: #0d0d10;
-  --surface2: #111114;
-  --border: #1a1a22;
-  --border2: #151518;
-  --green: #00ff88;
-  --green-dim: #00ff8844;
-  --green-faint: #00ff8811;
-  --text: #ccc;
-  --muted: #555;
-  --muted2: #3a3a44;
-  --muted3: #2a2a33;
-  --sidebar-w: 220px;
-  --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  --bg: #08080a; --surface: #0d0d10; --surface2: #111114;
+  --border: #1a1a22; --border2: #151518;
+  --green: #00ff88; --green-dim: #00ff8844; --green-faint: #00ff8811;
+  --text: #ccc; --muted: #555; --muted2: #3a3a44; --muted3: #2a2a33;
+  --sidebar-w: 220px; --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 }
-
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 8px #00ff8833; } 50% { box-shadow: 0 0 20px #00ff8855; } }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+body { min-height: 100vh; background: var(--bg); font-family: var(--font); display: flex; -webkit-font-smoothing: antialiased; overflow: hidden; }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px #00ff8833; }
-  50% { box-shadow: 0 0 20px #00ff8855; }
-}
-@keyframes slide-in {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  font-family: var(--font);
-  display: flex;
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-}
-
-/* ===================== SIDEBAR ===================== */
-.sidebar {
-  width: var(--sidebar-w);
-  min-height: 100vh;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 10;
-}
-
-.sidebar-header {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logo-indicator {
-  width: 6px; height: 6px;
-  background: var(--green);
-  border-radius: 1px;
-  animation: pulse-glow 2.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-.logo-text {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: 0.12em;
-}
-
-.logo-sub {
-  margin-top: 4px;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  padding-left: 14px;
-}
-
-.sidebar-section-label {
-  padding: 16px 18px 6px;
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  cursor: pointer;
-  transition: all 0.15s;
-  position: relative;
-  border-left: 2px solid transparent;
-  user-select: none;
-}
-
-.nav-item:hover {
-  background: var(--border2);
-}
-
-.nav-item.active {
-  background: #00ff880a;
-  border-left-color: var(--green);
-}
-
+/* SIDEBAR */
+.sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: relative; z-index: 10; }
+.sidebar-header { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 8px; }
+.logo-indicator { width: 6px; height: 6px; background: var(--green); border-radius: 1px; animation: pulse-glow 2.5s ease-in-out infinite; flex-shrink: 0; }
+.logo-text { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: 0.12em; }
+.logo-sub { margin-top: 4px; font-size: 9px; color: var(--muted); letter-spacing: 0.06em; padding-left: 14px; }
+.sidebar-section-label { padding: 16px 18px 6px; font-size: 9px; font-weight: 500; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; user-select: none; }
+.nav-item:hover { background: var(--border2); }
+.nav-item.active { background: #00ff880a; border-left-color: var(--green); }
 .nav-item.active .nav-label { color: var(--green); }
 .nav-item.active .nav-icon { color: var(--green); }
+.nav-icon { font-size: 13px; width: 16px; text-align: center; color: var(--muted); flex-shrink: 0; }
+.nav-label { font-size: 11px; font-weight: 500; color: var(--muted2); letter-spacing: 0.04em; transition: color 0.15s; }
+.nav-badge { margin-left: auto; font-size: 8px; padding: 2px 5px; background: var(--border); color: var(--muted); border-radius: 2px; letter-spacing: 0.04em; }
+.nav-item.active .nav-badge { background: #00ff8822; color: var(--green); }
+.sidebar-footer { margin-top: auto; padding: 14px 18px; border-top: 1px solid var(--border); font-size: 9px; color: var(--muted); letter-spacing: 0.06em; line-height: 1.6; }
 
-.nav-icon {
-  font-size: 13px;
-  width: 16px;
-  text-align: center;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-
-.nav-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--muted2);
-  letter-spacing: 0.04em;
-  transition: color 0.15s;
-}
-
-.nav-badge {
-  margin-left: auto;
-  font-size: 8px;
-  padding: 2px 5px;
-  background: var(--border);
-  color: var(--muted);
-  border-radius: 2px;
-  letter-spacing: 0.04em;
-}
-
-.nav-item.active .nav-badge {
-  background: #00ff8822;
-  color: var(--green);
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 14px 18px;
-  border-top: 1px solid var(--border);
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  line-height: 1.6;
-}
-
-/* ===================== MAIN ===================== */
-.main {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
+/* MAIN */
+.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .main::-webkit-scrollbar { width: 4px; }
-.main::-webkit-scrollbar-track { background: transparent; }
 .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.accent-line { height: 2px; background: linear-gradient(90deg, transparent, var(--green), transparent); flex-shrink: 0; }
 
-/* Accent line top */
-.accent-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--green), transparent);
-  flex-shrink: 0;
-}
-
-/* ===================== TOOL PANELS ===================== */
-.tool-panel {
-  display: none;
-  flex: 1;
-  animation: fade-in 0.3s ease-out;
-}
+/* TOOL PANELS */
+.tool-panel { display: none; flex: 1; animation: fade-in 0.3s ease-out; }
 .tool-panel.active { display: flex; flex-direction: column; }
 
-/* ===================== TOOL: CSV GENERATOR ===================== */
-#tool-csv {
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-}
-
-.card {
-  width: 100%;
-  max-width: 480px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.card-header {
-  padding: 24px 28px 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--border2);
-}
-
-.indicator {
-  width: 7px; height: 7px;
-  background: var(--green);
-  border-radius: 1px;
-  animation: pulse-glow 2.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-.card-header h2 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.1em;
-}
-.card-header p {
-  margin-top: 3px;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
-
+/* CSV GENERATOR */
+#tool-csv { padding: 40px 24px; overflow-y: auto; overflow-x: hidden; width: 100%; flex: 1; min-height: 0; box-sizing: border-box; }
+.card { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; overflow: visible; margin: 0 auto; }
+.card-header { padding: 24px 28px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border2); }
+.indicator { width: 7px; height: 7px; background: var(--green); border-radius: 1px; animation: pulse-glow 2.5s ease-in-out infinite; flex-shrink: 0; }
+.card-header h2 { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: 0.1em; }
+.card-header p { margin-top: 3px; font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
 .card-body { padding: 24px 28px 28px; }
+.section { margin-bottom: 22px; }
+.section-label { display: block; font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
 
-.section { margin-bottom: 24px; }
-.section:last-of-type { margin-bottom: 28px; }
+/* CSV Upload Zone */
+.csv-upload-zone { border: 1px dashed var(--border); border-radius: 2px; padding: 16px 14px; text-align: center; cursor: pointer; transition: all 0.2s; background: transparent; position: relative; }
+.csv-upload-zone:hover { border-color: var(--green); background: var(--green-faint); }
+.csv-upload-zone.has-file { border-color: var(--green); background: #00ff8808; border-style: solid; }
+.csv-upload-zone strong { display: block; font-size: 10px; color: var(--green); font-weight: 600; letter-spacing: 0.06em; margin-bottom: 3px; }
+.csv-upload-zone p { font-size: 9px; color: var(--muted); letter-spacing: 0.04em; }
+.csv-upload-zone .file-name { font-size: 11px; color: var(--green); font-weight: 500; margin-bottom: 2px; }
+.csv-upload-zone .file-info { font-size: 9px; color: var(--muted); }
+#csv-file-input { display: none; }
 
-.section-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
+/* Column tags & fixed data input */
+.column-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.column-item { border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.column-item-header { display: flex; align-items: center; gap: 8px; padding: 5px 10px; cursor: pointer; background: var(--bg); user-select: none; transition: background 0.15s; }
+.column-item-header:hover { background: var(--border2); }
+.column-item.has-data .column-item-header { border-left: 2px solid var(--green); }
+.col-name { color: var(--green); font-size: 10px; font-weight: 600; }
+.col-type { color: var(--muted); font-size: 8px; padding: 1px 5px; background: var(--surface2); border-radius: 1px; letter-spacing: 0.06em; }
+.col-data-badge { margin-left: auto; font-size: 8px; color: var(--green); letter-spacing: 0.04em; }
+.col-auto-badge { margin-left: auto; font-size: 8px; color: var(--muted); letter-spacing: 0.04em; }
+.col-arrow { font-size: 8px; color: var(--muted); transition: transform 0.15s; margin-left: 4px; }
+.column-item.open .col-arrow { transform: rotate(90deg); }
+.column-data-input { display: none; padding: 8px 10px; background: var(--surface); border-top: 1px solid var(--border2); }
+.column-item.open .column-data-input { display: block; }
+.column-data-input textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; color: var(--text); font-size: 10px; font-family: inherit; padding: 7px 9px; resize: vertical; min-height: 72px; outline: none; caret-color: var(--green); line-height: 1.6; }
+.column-data-input textarea:focus { border-color: var(--green-dim); }
+.column-data-input .input-hint { font-size: 8px; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; line-height: 1.6; }
 
-.size-row { display: flex; gap: 8px; }
+/* Mode toggle */
+.mode-toggle { display: flex; gap: 5px; margin-bottom: 16px; }
+.mode-btn { flex: 1; padding: 9px 6px; background: transparent; color: var(--muted2); border: 1px solid var(--border); border-radius: 2px; font-size: 10px; font-weight: 500; font-family: inherit; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; text-align: center; }
+.mode-btn.active { background: var(--green); color: var(--bg); border-color: var(--green); font-weight: 700; }
 
-.size-input {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  color: var(--green);
-  font-size: 26px;
-  font-weight: 300;
-  font-family: inherit;
-  padding: 10px 14px;
-  outline: none;
-  caret-color: var(--green);
-  transition: border-color 0.2s;
-  line-height: 1.2;
-}
+/* Size input */
+.size-row { display: flex; gap: 8px; align-items: stretch; }
+.size-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; color: var(--green); font-size: 26px; font-weight: 300; font-family: inherit; padding: 10px 14px; outline: none; caret-color: var(--green); transition: border-color 0.2s; line-height: 1.2; }
 .size-input:focus { border-color: var(--green-dim); }
-
-.unit-buttons { display: flex; flex-direction: column; gap: 3px; }
-
-.unit-btn {
-  flex: 1;
-  min-width: 48px;
-  padding: 0 10px;
-  background: transparent;
-  color: var(--muted2);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 10px;
-  font-weight: 600;
-  font-family: inherit;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.unit-btn.active {
-  background: var(--green);
-  color: var(--bg);
-  border-color: var(--green);
-}
-
-.bytes-display {
-  margin-top: 8px;
-  padding: 6px 12px;
-  background: var(--bg);
-  border: 1px solid #111114;
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.unit-buttons { display: flex; flex-direction: row; gap: 4px; flex-shrink: 0; }
+.unit-btn { padding: 0 14px; height: 100%; background: transparent; color: var(--muted2); border: 1px solid var(--border); border-radius: 2px; font-size: 10px; font-weight: 600; font-family: inherit; letter-spacing: 0.08em; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.unit-btn.active { background: var(--green); color: var(--bg); border-color: var(--green); }
+.bytes-display { margin-top: 8px; padding: 6px 12px; background: var(--bg); border: 1px solid #111114; border-radius: 2px; display: flex; align-items: center; gap: 8px; }
 .bytes-display .eq { color: var(--muted3); font-size: 12px; font-weight: 500; }
 .bytes-display .val { color: var(--green); font-size: 12px; font-weight: 400; opacity: 0.8; }
 .bytes-display .unit { color: var(--muted3); font-size: 10px; }
 
+/* Row count input */
+.row-input-wrap { display: flex; align-items: stretch; gap: 8px; }
+.row-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; color: var(--green); font-size: 26px; font-weight: 300; font-family: inherit; padding: 10px 14px; outline: none; caret-color: var(--green); transition: border-color 0.2s; line-height: 1.2; }
+.row-input:focus { border-color: var(--green-dim); }
+.row-unit { display: flex; align-items: center; padding: 0 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; white-space: nowrap; }
+
+/* Encoding */
 .enc-buttons { display: flex; gap: 5px; }
+.enc-btn { flex: 1; padding: 10px 6px; background: transparent; color: var(--muted2); border: 1px solid var(--border); border-radius: 2px; font-size: 10px; font-weight: 400; font-family: inherit; letter-spacing: 0.04em; cursor: pointer; transition: all 0.15s; }
+.enc-btn.active { background: var(--green); color: var(--bg); border-color: var(--green); font-weight: 600; }
 
-.enc-btn {
-  flex: 1;
-  padding: 10px 6px;
-  background: transparent;
-  color: var(--muted2);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 10px;
-  font-weight: 400;
-  font-family: inherit;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.enc-btn.active {
-  background: var(--green);
-  color: var(--bg);
-  border-color: var(--green);
-  font-weight: 600;
-}
-
-.generate-btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--green);
-  color: var(--bg);
-  border: none;
-  border-radius: 2px;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: inherit;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+.generate-btn { width: 100%; padding: 14px; background: var(--green); color: var(--bg); border: none; border-radius: 2px; font-size: 12px; font-weight: 700; font-family: inherit; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
 .generate-btn:hover { background: #00dd77; box-shadow: 0 0 30px #00ff8822; }
-.generate-btn:disabled {
-  background: var(--border2);
-  color: var(--muted3);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 46px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-  position: relative;
-}
-.progress-fill {
-  position: absolute;
-  top: 0; left: 0;
-  height: 100%;
-  background: linear-gradient(90deg, var(--green-faint), #00ff8833);
-  transition: width 0.3s ease;
-}
+.generate-btn:disabled { background: var(--border2); color: var(--muted3); cursor: not-allowed; box-shadow: none; }
+.progress-bar { width: 100%; height: 46px; background: var(--bg); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; position: relative; }
+.progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, var(--green-faint), #00ff8833); transition: width 0.3s ease; }
 .progress-fill.done { background: linear-gradient(90deg, #00ff8833, #00ff8855); }
-.progress-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #00ff88aa;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-}
+.progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #00ff88aa; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; }
 .progress-text.done { color: var(--green); }
-
-.warning {
-  margin-top: 10px;
-  font-size: 9px;
-  color: #665522;
-  letter-spacing: 0.02em;
-  line-height: 1.6;
-}
-
+.warning { margin-top: 10px; font-size: 9px; color: #665522; letter-spacing: 0.02em; line-height: 1.6; }
 .hidden { display: none; }
 
-/* ===================== TOOL: GIF MAKER ===================== */
-#tool-gif {
-  flex-direction: row;
-  overflow: hidden;
-  height: calc(100vh - 2px);
-}
 
-/* GIF Left panel */
-.gif-left {
-  width: 320px;
-  min-width: 320px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.gif-section {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--border);
-}
-
-.gif-section-label {
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.gif-section-label span {
-  color: var(--green);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-}
-
-/* Upload */
-.upload-zone {
-  border: 1px dashed var(--border);
-  border-radius: 2px;
-  padding: 18px 14px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: transparent;
-}
-.upload-zone:hover, .upload-zone.drag-over {
-  border-color: var(--green);
-  background: var(--green-faint);
-}
+/* GIF MAKER */
+#tool-gif { flex-direction: row; overflow: hidden; height: calc(100vh - 2px); }
+.gif-left { width: 320px; min-width: 320px; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
+.gif-section { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.gif-section-label { font-size: 9px; font-weight: 500; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.gif-section-label span { color: var(--green); font-size: 10px; letter-spacing: 0.04em; }
+.upload-zone { border: 1px dashed var(--border); border-radius: 2px; padding: 18px 14px; text-align: center; cursor: pointer; transition: all 0.2s; background: transparent; }
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--green); background: var(--green-faint); }
 .upload-zone-icon { font-size: 20px; margin-bottom: 6px; opacity: 0.5; }
-.upload-zone strong {
-  display: block;
-  font-size: 10px;
-  color: var(--green);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  margin-bottom: 3px;
-}
+.upload-zone strong { display: block; font-size: 10px; color: var(--green); font-weight: 600; letter-spacing: 0.06em; margin-bottom: 3px; }
 .upload-zone p { font-size: 9px; color: var(--muted); letter-spacing: 0.04em; }
 #gif-file-input { display: none; }
-
-/* Thumbnails */
-.gif-thumbs-wrap {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 18px;
-}
+.gif-thumbs-wrap { flex: 1; overflow-y: auto; padding: 14px 18px; }
 .gif-thumbs-wrap::-webkit-scrollbar { width: 3px; }
 .gif-thumbs-wrap::-webkit-scrollbar-thumb { background: var(--border); }
-
-.thumb-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-}
-.thumb-empty {
-  grid-column: 1/-1;
-  font-size: 9px;
-  color: var(--muted);
-  text-align: center;
-  padding: 20px 0;
-  letter-spacing: 0.04em;
-  line-height: 1.8;
-}
-
-.thumb-item {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 2px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  cursor: grab;
-  transition: all 0.15s;
-  background: var(--bg);
-}
+.thumb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.thumb-empty { grid-column: 1/-1; font-size: 9px; color: var(--muted); text-align: center; padding: 20px 0; letter-spacing: 0.04em; line-height: 1.8; }
+.thumb-item { position: relative; aspect-ratio: 1; border-radius: 2px; overflow: hidden; border: 1px solid var(--border); cursor: grab; transition: all 0.15s; background: var(--bg); }
 .thumb-item:hover { border-color: var(--green); }
 .thumb-item.dragging { opacity: 0.35; }
 .thumb-item.drag-over-target { border-color: var(--green); box-shadow: 0 0 0 2px var(--green-dim); }
 .thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.thumb-num {
-  position: absolute;
-  top: 2px; left: 2px;
-  background: rgba(0,0,0,0.75);
-  color: var(--green);
-  font-size: 8px;
-  padding: 1px 4px;
-  border-radius: 1px;
-  line-height: 1.4;
-  letter-spacing: 0.04em;
-}
-.thumb-del {
-  position: absolute;
-  top: 2px; right: 2px;
-  background: rgba(0,0,0,0.75);
-  color: #ff5566;
-  border: none;
-  border-radius: 1px;
-  width: 14px; height: 14px;
-  cursor: pointer;
-  font-size: 9px;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0;
-  transition: opacity 0.15s;
-  line-height: 1;
-  padding: 0;
-}
+.thumb-num { position: absolute; top: 2px; left: 2px; background: rgba(0,0,0,0.75); color: var(--green); font-size: 8px; padding: 1px 4px; border-radius: 1px; line-height: 1.4; letter-spacing: 0.04em; }
+.thumb-del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.75); color: #ff5566; border: none; border-radius: 1px; width: 14px; height: 14px; cursor: pointer; font-size: 9px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; line-height: 1; padding: 0; }
 .thumb-item:hover .thumb-del { opacity: 1; }
-
-/* GIF Settings */
-.gif-settings {
-  padding: 14px 18px 18px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-
+.gif-settings { padding: 14px 18px 18px; border-top: 1px solid var(--border); background: var(--surface); }
 .setting-row { margin-bottom: 14px; }
 .setting-row:last-of-type { margin-bottom: 0; }
-
-.setting-row label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 7px;
-}
-.setting-row label em {
-  font-style: normal;
-  color: var(--green);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: none;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 3px;
-  background: var(--border);
-  border-radius: 1px;
-  outline: none;
-  cursor: pointer;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--green);
-  cursor: pointer;
-  box-shadow: 0 0 6px var(--green-dim);
-}
-
+.setting-row label { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 7px; }
+.setting-row label em { font-style: normal; color: var(--green); font-weight: 600; letter-spacing: 0.04em; text-transform: none; }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 3px; background: var(--border); border-radius: 1px; outline: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--green); cursor: pointer; box-shadow: 0 0 6px var(--green-dim); }
 .tab-row { display: flex; gap: 4px; }
-.tab-btn {
-  flex: 1;
-  padding: 6px 4px;
-  background: transparent;
-  color: var(--muted2);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 9px;
-  font-weight: 500;
-  font-family: inherit;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: center;
-}
-.tab-btn.active {
-  background: var(--green);
-  color: var(--bg);
-  border-color: var(--green);
-  font-weight: 700;
-}
-
-.gif-btn {
-  width: 100%;
-  padding: 11px;
-  border: none;
-  border-radius: 2px;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: inherit;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 10px;
-}
-.gif-btn-primary {
-  background: var(--green);
-  color: var(--bg);
-}
+.tab-btn { flex: 1; padding: 6px 4px; background: transparent; color: var(--muted2); border: 1px solid var(--border); border-radius: 2px; font-size: 9px; font-weight: 500; font-family: inherit; letter-spacing: 0.04em; cursor: pointer; transition: all 0.15s; text-align: center; }
+.tab-btn.active { background: var(--green); color: var(--bg); border-color: var(--green); font-weight: 700; }
+.gif-btn { width: 100%; padding: 11px; border: none; border-radius: 2px; font-size: 11px; font-weight: 700; font-family: inherit; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+.gif-btn-primary { background: var(--green); color: var(--bg); }
 .gif-btn-primary:hover:not(:disabled) { background: #00dd77; box-shadow: 0 0 20px #00ff8822; }
 .gif-btn-primary:disabled { background: var(--border2); color: var(--muted3); cursor: not-allowed; }
-
-.gif-btn-secondary {
-  background: transparent;
-  color: var(--green);
-  border: 1px solid var(--green-dim);
-  margin-top: 5px;
-}
+.gif-btn-secondary { background: transparent; color: var(--green); border: 1px solid var(--green-dim); margin-top: 5px; }
 .gif-btn-secondary:hover:not(:disabled) { background: var(--green-faint); }
 .gif-btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.gif-worker-msg {
-  font-size: 9px;
-  color: var(--muted);
-  text-align: center;
-  margin-top: 6px;
-  letter-spacing: 0.04em;
-  min-height: 14px;
-}
-
-/* GIF Right panel */
-.gif-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.gif-preview-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.preview-label {
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.preview-meta {
-  display: flex;
-  gap: 14px;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-}
+.gif-worker-msg { font-size: 9px; color: var(--muted); text-align: center; margin-top: 6px; letter-spacing: 0.04em; min-height: 14px; }
+.gif-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.gif-preview-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.preview-label { font-size: 9px; color: var(--muted); letter-spacing: 0.16em; text-transform: uppercase; }
+.preview-meta { display: flex; gap: 14px; font-size: 9px; color: var(--muted); letter-spacing: 0.06em; }
 .preview-meta strong { color: var(--green); font-weight: 500; }
-
-.gif-preview-area {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  background:
-    repeating-conic-gradient(rgba(255,255,255,0.015) 0% 25%, transparent 0% 50%)
-    0 0 / 16px 16px;
-}
-
-.gif-placeholder {
-  text-align: center;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  line-height: 2;
-}
+.gif-preview-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: repeating-conic-gradient(rgba(255,255,255,0.015) 0% 25%, transparent 0% 50%) 0 0 / 16px 16px; }
+.gif-placeholder { text-align: center; color: var(--muted); font-size: 10px; letter-spacing: 0.06em; line-height: 2; }
 .gif-placeholder-icon { font-size: 48px; opacity: 0.1; display: block; margin-bottom: 12px; }
-
-#gif-canvas {
-  max-width: 92%;
-  max-height: 92%;
-  border-radius: 2px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-  display: none;
-  image-rendering: pixelated;
-}
-
-#gif-preview-img {
-  max-width: 92%;
-  max-height: 92%;
-  border-radius: 2px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-  display: none;
-}
-
-/* GIF Progress */
-.gif-progress-wrap {
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  display: none;
-}
-
-.gif-progress-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--muted);
-  margin-bottom: 6px;
-  letter-spacing: 0.08em;
-}
+#gif-canvas { max-width: 92%; max-height: 92%; border-radius: 2px; box-shadow: 0 16px 48px rgba(0,0,0,0.6); display: none; image-rendering: pixelated; }
+#gif-preview-img { max-width: 92%; max-height: 92%; border-radius: 2px; box-shadow: 0 16px 48px rgba(0,0,0,0.6); display: none; }
+.gif-progress-wrap { padding: 10px 20px; border-top: 1px solid var(--border); flex-shrink: 0; display: none; }
+.gif-progress-meta { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.08em; }
 .gif-progress-meta strong { color: var(--green); }
-
-.gif-progress-bar {
-  height: 3px;
-  background: var(--border);
-  border-radius: 1px;
-  overflow: hidden;
-}
-.gif-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--green), #00cc66);
-  border-radius: 1px;
-  transition: width 0.15s;
-  box-shadow: 0 0 6px var(--green-dim);
-}
-
-/* Loop blink */
-.loop-dot {
-  display: inline-block;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--green);
-  margin-right: 5px;
-  animation: blink 1.2s infinite;
-}
+.gif-progress-bar { height: 3px; background: var(--border); border-radius: 1px; overflow: hidden; }
+.gif-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green), #00cc66); border-radius: 1px; transition: width 0.15s; box-shadow: 0 0 6px var(--green-dim); }
+.loop-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin-right: 5px; animation: blink 1.2s infinite; }
 </style>
 </head>
 <body>
 
-<!-- ==================== SIDEBAR ==================== -->
+<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">
@@ -776,61 +203,77 @@ input[type="range"]::-webkit-slider-thumb {
     </div>
     <div class="logo-sub">Internal test utilities</div>
   </div>
-
   <div class="sidebar-section-label">TOOLS</div>
-
   <div class="nav-item active" data-tool="csv">
     <span class="nav-icon">⚙</span>
     <span class="nav-label">CSV Generator</span>
-    <span class="nav-badge">v1</span>
+    <span class="nav-badge">v2</span>
   </div>
-
   <div class="nav-item" data-tool="gif">
     <span class="nav-icon">▶</span>
     <span class="nav-label">GIF Maker</span>
     <span class="nav-badge">new</span>
   </div>
-
-  <div class="sidebar-footer">
-    © QA TOOLS<br>
-    internal use only
-  </div>
+  <div class="sidebar-footer">© QA TOOLS<br>internal use only</div>
 </nav>
 
-<!-- ==================== MAIN ==================== -->
+<!-- MAIN -->
 <main class="main">
   <div class="accent-line"></div>
 
-  <!-- ====== TOOL: CSV GENERATOR ====== -->
+  <!-- CSV GENERATOR -->
   <div id="tool-csv" class="tool-panel active">
     <div class="card">
       <div class="card-header">
         <div class="indicator"></div>
         <div>
           <h2>CSV_GENERATOR</h2>
-          <p>指定サイズのテスト用CSVを生成します</p>
+          <p>CSVをアップロードしてカラム構造を読み取り、テストデータを生成します</p>
         </div>
       </div>
       <div class="card-body">
+
+        <!-- Step 1: Upload CSV template -->
         <div class="section">
-          <label class="section-label">TARGET SIZE</label>
+          <label class="section-label">STEP 1 — TEMPLATE CSV</label>
+          <div class="csv-upload-zone" id="csv-upload-zone">
+            <strong>CLICK TO UPLOAD CSV</strong>
+            <p>ヘッダー行を含むCSVファイルを選択してください</p>
+          </div>
+          <input type="file" id="csv-file-input" accept=".csv,text/csv">
+          <div class="column-list" id="csv-column-tags"></div>
+          <div class="no-file-msg" id="csv-no-file-msg">⚠ 先にCSVファイルをアップロードしてください</div>
+        </div>
+
+        <!-- Step 2: Rows & Size -->
+        <div class="section">
+          <label class="section-label">STEP 2 — ROWS &amp; SIZE</label>
+
+          <div class="sub-label" style="margin-bottom:6px;">行数</div>
+          <div class="row-input-wrap" style="margin-bottom:14px;">
+            <input type="number" class="row-input" id="csv-rowCount" value="1000" min="1">
+            <div class="row-unit">ROWS</div>
+          </div>
+
+          <div class="sub-label" style="margin-bottom:6px;">ファイルサイズ</div>
           <div class="size-row">
-            <input type="number" class="size-input" id="csv-sizeInput" value="200" min="1">
+            <input type="number" class="size-input" id="csv-sizeInput" value="1" min="1">
             <div class="unit-buttons" id="csv-unitButtons">
-              <button class="unit-btn" data-unit="KB" data-bytes="1000">KB</button>
-              <button class="unit-btn active" data-unit="MB" data-bytes="1000000">MB</button>
+              <button class="unit-btn active" data-unit="KB" data-bytes="1000">KB</button>
+              <button class="unit-btn" data-unit="MB" data-bytes="1000000">MB</button>
               <button class="unit-btn" data-unit="GB" data-bytes="1000000000">GB</button>
             </div>
           </div>
           <div class="bytes-display">
             <span class="eq">=</span>
-            <span class="val" id="csv-bytesValue">200,000,000</span>
+            <span class="val" id="csv-bytesValue">1,000</span>
             <span class="unit">bytes</span>
           </div>
         </div>
 
+        <!-- Step 3: Encoding -->
         <div class="section">
-          <label class="section-label">ENCODING</label>
+          <label class="section-label">STEP 3 — ENCODING</label>
           <div class="enc-buttons" id="csv-encButtons">
             <button class="enc-btn active" data-enc="UTF-8 BOM">UTF-8 BOM</button>
             <button class="enc-btn" data-enc="UTF-8">UTF-8</button>
@@ -839,21 +282,18 @@ input[type="range"]::-webkit-slider-thumb {
         </div>
 
         <button class="generate-btn" id="csv-generateBtn">GENERATE CSV</button>
-
         <div class="progress-bar hidden" id="csv-progressBar">
           <div class="progress-fill" id="csv-progressFill"></div>
           <div class="progress-text" id="csv-progressText">GENERATING... 0%</div>
         </div>
-
         <p class="warning hidden" id="csv-warning">⚠ 大容量ファイルの生成にはメモリと時間を要します。ブラウザがフリーズする可能性があります。</p>
+
       </div>
     </div>
   </div>
 
-  <!-- ====== TOOL: GIF MAKER ====== -->
+  <!-- GIF MAKER -->
   <div id="tool-gif" class="tool-panel">
-
-    <!-- Left: controls -->
     <div class="gif-left">
       <div class="gif-section">
         <div class="gif-section-label">UPLOAD FRAMES</div>
@@ -864,11 +304,9 @@ input[type="range"]::-webkit-slider-thumb {
         </div>
         <input type="file" id="gif-file-input" accept="image/*" multiple>
       </div>
-
       <div class="gif-section" style="padding-bottom:10px; flex-shrink:0;">
         <div class="gif-section-label">
-          FRAMES
-          <span id="gif-frame-count">0 frames</span>
+          FRAMES <span id="gif-frame-count">0 frames</span>
         </div>
         <div class="gif-thumbs-wrap" style="max-height:170px; overflow-y:auto; padding:0;">
           <div class="thumb-grid" id="gif-thumb-grid">
@@ -876,15 +314,12 @@ input[type="range"]::-webkit-slider-thumb {
           </div>
         </div>
       </div>
-
       <div class="gif-settings">
         <div class="gif-section-label" style="margin-bottom:12px;">SETTINGS</div>
-
         <div class="setting-row">
           <label>SPEED <em id="gif-fps-label">10 fps</em></label>
           <input type="range" id="gif-fps-range" min="1" max="30" value="10" step="1">
         </div>
-
         <div class="setting-row">
           <label style="margin-bottom:6px;">OUTPUT SIZE</label>
           <div class="tab-row">
@@ -894,7 +329,6 @@ input[type="range"]::-webkit-slider-thumb {
             <div class="tab-btn" data-size="240">240px</div>
           </div>
         </div>
-
         <div class="setting-row">
           <label style="margin-bottom:6px;">QUALITY</label>
           <div class="tab-row" id="gif-quality-tabs">
@@ -903,14 +337,11 @@ input[type="range"]::-webkit-slider-thumb {
             <div class="tab-btn" data-q="20">軽量</div>
           </div>
         </div>
-
         <button class="gif-btn gif-btn-primary" id="gif-btn-preview" disabled>▶ PREVIEW</button>
         <button class="gif-btn gif-btn-secondary" id="gif-btn-download" disabled>⬇ GENERATE & DOWNLOAD</button>
         <div class="gif-worker-msg" id="gif-worker-msg"></div>
       </div>
     </div>
-
-    <!-- Right: preview -->
     <div class="gif-right">
       <div class="gif-preview-header">
         <div class="preview-label">PREVIEW</div>
@@ -921,17 +352,14 @@ input[type="range"]::-webkit-slider-thumb {
           <span id="gif-meta-fps">— fps</span>
         </div>
       </div>
-
       <div class="gif-preview-area" id="gif-preview-area">
         <div class="gif-placeholder" id="gif-placeholder">
           <span class="gif-placeholder-icon">🎞</span>
-          画像をアップロードして<br>
-          PREVIEW を押してください
+          画像をアップロードして<br>PREVIEW を押してください
         </div>
         <canvas id="gif-canvas"></canvas>
         <img id="gif-preview-img" alt="GIF preview">
       </div>
-
       <div class="gif-progress-wrap" id="gif-progress-wrap">
         <div class="gif-progress-meta">
           <span id="gif-progress-text">GENERATING...</span>
@@ -943,13 +371,12 @@ input[type="range"]::-webkit-slider-thumb {
       </div>
     </div>
   </div>
-
 </main>
 
 <!-- gif.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 <script>
-// Inline gif.worker.js as Blob URL to avoid cross-origin Worker restriction
+// Inline gif.worker.js as Blob URL
 (function() {
   var workerSrc = `// gif.worker.js 0.2.0 - https://github.com/jnordberg/gif.js
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){var NeuQuant=require("./TypedNeuQuant.js");var LZWEncoder=require("./LZWEncoder.js");function ByteArray(){this.page=-1;this.pages=[];this.newPage()}ByteArray.pageSize=4096;ByteArray.charMap={};for(var i=0;i<256;i++)ByteArray.charMap[i]=String.fromCharCode(i);ByteArray.prototype.newPage=function(){this.pages[++this.page]=new Uint8Array(ByteArray.pageSize);this.cursor=0};ByteArray.prototype.getData=function(){var rv="";for(var p=0;p<this.pages.length;p++){for(var i=0;i<ByteArray.pageSize;i++){rv+=ByteArray.charMap[this.pages[p][i]]}}return rv};ByteArray.prototype.writeByte=function(val){if(this.cursor>=ByteArray.pageSize)this.newPage();this.pages[this.page][this.cursor++]=val};ByteArray.prototype.writeUTFBytes=function(string){for(var l=string.length,i=0;i<l;i++)this.writeByte(string.charCodeAt(i))};ByteArray.prototype.writeBytes=function(array,offset,length){for(var l=length||array.length,i=offset||0;i<l;i++)this.writeByte(array[i])};function GIFEncoder(width,height){this.width=~~width;this.height=~~height;this.transparent=null;this.transIndex=0;this.repeat=-1;this.delay=0;this.image=null;this.pixels=null;this.indexedPixels=null;this.colorDepth=null;this.colorTab=null;this.neuQuant=null;this.usedEntry=new Array;this.palSize=7;this.dispose=-1;this.firstFrame=true;this.sample=10;this.dither=false;this.globalPalette=false;this.out=new ByteArray}GIFEncoder.prototype.setDelay=function(milliseconds){this.delay=Math.round(milliseconds/10)};GIFEncoder.prototype.setFrameRate=function(fps){this.delay=Math.round(100/fps)};GIFEncoder.prototype.setDispose=function(disposalCode){if(disposalCode>=0)this.dispose=disposalCode};GIFEncoder.prototype.setRepeat=function(repeat){this.repeat=repeat};GIFEncoder.prototype.setTransparent=function(color){this.transparent=color};GIFEncoder.prototype.addFrame=function(imageData){this.image=imageData;this.colorTab=this.globalPalette&&this.globalPalette.slice?this.globalPalette:null;this.getImagePixels();this.analyzePixels();if(this.globalPalette===true)this.globalPalette=this.colorTab;if(this.firstFrame){this.writeLSD();this.writePalette();if(this.repeat>=0){this.writeNetscapeExt()}}this.writeGraphicCtrlExt();this.writeImageDesc();if(!this.firstFrame&&!this.globalPalette)this.writePalette();this.writePixels();this.firstFrame=false};GIFEncoder.prototype.finish=function(){this.out.writeByte(59)};GIFEncoder.prototype.setQuality=function(quality){if(quality<1)quality=1;this.sample=quality};GIFEncoder.prototype.setDither=function(dither){if(dither===true)dither="FloydSteinberg";this.dither=dither};GIFEncoder.prototype.setGlobalPalette=function(palette){this.globalPalette=palette};GIFEncoder.prototype.getGlobalPalette=function(){return this.globalPalette&&this.globalPalette.slice&&this.globalPalette.slice(0)||this.globalPalette};GIFEncoder.prototype.writeHeader=function(){this.out.writeUTFBytes("GIF89a")};GIFEncoder.prototype.analyzePixels=function(){if(!this.colorTab){this.neuQuant=new NeuQuant(this.pixels,this.sample);this.neuQuant.buildColormap();this.colorTab=this.neuQuant.getColormap()}if(this.dither){this.ditherPixels(this.dither.replace("-serpentine",""),this.dither.match(/-serpentine/)!==null)}else{this.indexPixels()}this.pixels=null;this.colorDepth=8;this.palSize=7;if(this.transparent!==null){this.transIndex=this.findClosest(this.transparent,true)}};GIFEncoder.prototype.indexPixels=function(imgq){var nPix=this.pixels.length/3;this.indexedPixels=new Uint8Array(nPix);var k=0;for(var j=0;j<nPix;j++){var index=this.findClosestRGB(this.pixels[k++]&255,this.pixels[k++]&255,this.pixels[k++]&255);this.usedEntry[index]=true;this.indexedPixels[j]=index}};GIFEncoder.prototype.ditherPixels=function(kernel,serpentine){var kernels={FalseFloydSteinberg:[[3/8,1,0],[3/8,0,1],[2/8,1,1]],FloydSteinberg:[[7/16,1,0],[3/16,-1,1],[5/16,0,1],[1/16,1,1]],Stucki:[[8/42,1,0],[4/42,2,0],[2/42,-2,1],[4/42,-1,1],[8/42,0,1],[4/42,1,1],[2/42,2,1],[1/42,-2,2],[2/42,-1,2],[4/42,0,2],[2/42,1,2],[1/42,2,2]],Atkinson:[[1/8,1,0],[1/8,2,0],[1/8,-1,1],[1/8,0,1],[1/8,1,1],[1/8,0,2]]};if(!kernel||!kernels[kernel]){throw"Unknown dithering kernel: "+kernel}var ds=kernels[kernel];var index=0,height=this.height,width=this.width,data=this.pixels;var direction=serpentine?-1:1;this.indexedPixels=new Uint8Array(this.pixels.length/3);for(var y=0;y<height;y++){if(serpentine)direction=direction*-1;for(var x=direction==1?0:width-1,xend=direction==1?width:0;x!==xend;x+=direction){index=y*width+x;var idx=index*3;var r1=data[idx];var g1=data[idx+1];var b1=data[idx+2];idx=this.findClosestRGB(r1,g1,b1);this.usedEntry[idx]=true;this.indexedPixels[index]=idx;idx*=3;var r2=this.colorTab[idx];var g2=this.colorTab[idx+1];var b2=this.colorTab[idx+2];var er=r1-r2;var eg=g1-g2;var eb=b1-b2;for(var i=direction==1?0:ds.length-1,end=direction==1?ds.length:0;i!==end;i+=direction){var x1=ds[i][1];var y1=ds[i][2];if(x1+x>=0&&x1+x<width&&y1+y>=0&&y1+y<height){var d=ds[i][0];idx=index+x1+y1*width;idx*=3;data[idx]=Math.max(0,Math.min(255,data[idx]+er*d));data[idx+1]=Math.max(0,Math.min(255,data[idx+1]+eg*d));data[idx+2]=Math.max(0,Math.min(255,data[idx+2]+eb*d))}}}}};GIFEncoder.prototype.findClosest=function(c,used){return this.findClosestRGB((c&16711680)>>16,(c&65280)>>8,c&255,used)};GIFEncoder.prototype.findClosestRGB=function(r,g,b,used){if(this.colorTab===null)return-1;if(this.neuQuant&&!used){return this.neuQuant.lookupRGB(r,g,b)}var c=b|g<<8|r<<16;var minpos=0;var dmin=256*256*256;var len=this.colorTab.length;for(var i=0,index=0;i<len;index++){var dr=r-(this.colorTab[i++]&255);var dg=g-(this.colorTab[i++]&255);var db=b-(this.colorTab[i++]&255);var d=dr*dr+dg*dg+db*db;if((!used||this.usedEntry[index])&&d<dmin){dmin=d;minpos=index}}return minpos};GIFEncoder.prototype.getImagePixels=function(){var w=this.width;var h=this.height;this.pixels=new Uint8Array(w*h*3);var data=this.image;var srcPos=0;var count=0;for(var i=0;i<h;i++){for(var j=0;j<w;j++){this.pixels[count++]=data[srcPos++];this.pixels[count++]=data[srcPos++];this.pixels[count++]=data[srcPos++];srcPos++}}};GIFEncoder.prototype.writeGraphicCtrlExt=function(){this.out.writeByte(33);this.out.writeByte(249);this.out.writeByte(4);var transp,disp;if(this.transparent===null){transp=0;disp=0}else{transp=1;disp=2}if(this.dispose>=0){disp=dispose&7}disp<<=2;this.out.writeByte(0|disp|0|transp);this.writeShort(this.delay);this.out.writeByte(this.transIndex);this.out.writeByte(0)};GIFEncoder.prototype.writeImageDesc=function(){this.out.writeByte(44);this.writeShort(0);this.writeShort(0);this.writeShort(this.width);this.writeShort(this.height);if(this.firstFrame||this.globalPalette){this.out.writeByte(0)}else{this.out.writeByte(128|0|0|0|this.palSize)}};GIFEncoder.prototype.writeLSD=function(){this.writeShort(this.width);this.writeShort(this.height);this.out.writeByte(128|112|0|this.palSize);this.out.writeByte(0);this.out.writeByte(0)};GIFEncoder.prototype.writeNetscapeExt=function(){this.out.writeByte(33);this.out.writeByte(255);this.out.writeByte(11);this.out.writeUTFBytes("NETSCAPE2.0");this.out.writeByte(3);this.out.writeByte(1);this.writeShort(this.repeat);this.out.writeByte(0)};GIFEncoder.prototype.writePalette=function(){this.out.writeBytes(this.colorTab);var n=3*256-this.colorTab.length;for(var i=0;i<n;i++)this.out.writeByte(0)};GIFEncoder.prototype.writeShort=function(pValue){this.out.writeByte(pValue&255);this.out.writeByte(pValue>>8&255)};GIFEncoder.prototype.writePixels=function(){var enc=new LZWEncoder(this.width,this.height,this.indexedPixels,this.colorDepth);enc.encode(this.out)};GIFEncoder.prototype.stream=function(){return this.out};module.exports=GIFEncoder},{"./LZWEncoder.js":2,"./TypedNeuQuant.js":3}],2:[function(require,module,exports){var EOF=-1;var BITS=12;var HSIZE=5003;var masks=[0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535];function LZWEncoder(width,height,pixels,colorDepth){var initCodeSize=Math.max(2,colorDepth);var accum=new Uint8Array(256);var htab=new Int32Array(HSIZE);var codetab=new Int32Array(HSIZE);var cur_accum,cur_bits=0;var a_count;var free_ent=0;var maxcode;var clear_flg=false;var g_init_bits,ClearCode,EOFCode;function char_out(c,outs){accum[a_count++]=c;if(a_count>=254)flush_char(outs)}function cl_block(outs){cl_hash(HSIZE);free_ent=ClearCode+2;clear_flg=true;output(ClearCode,outs)}function cl_hash(hsize){for(var i=0;i<hsize;++i)htab[i]=-1}function compress(init_bits,outs){var fcode,c,i,ent,disp,hsize_reg,hshift;g_init_bits=init_bits;clear_flg=false;n_bits=g_init_bits;maxcode=MAXCODE(n_bits);ClearCode=1<<init_bits-1;EOFCode=ClearCode+1;free_ent=ClearCode+2;a_count=0;ent=nextPixel();hshift=0;for(fcode=HSIZE;fcode<65536;fcode*=2)++hshift;hshift=8-hshift;hsize_reg=HSIZE;cl_hash(hsize_reg);output(ClearCode,outs);outer_loop:while((c=nextPixel())!=EOF){fcode=(c<<BITS)+ent;i=c<<hshift^ent;if(htab[i]===fcode){ent=codetab[i];continue}else if(htab[i]>=0){disp=hsize_reg-i;if(i===0)disp=1;do{if((i-=disp)<0)i+=hsize_reg;if(htab[i]===fcode){ent=codetab[i];continue outer_loop}}while(htab[i]>=0)}output(ent,outs);ent=c;if(free_ent<1<<BITS){codetab[i]=free_ent++;htab[i]=fcode}else{cl_block(outs)}}output(ent,outs);output(EOFCode,outs)}function encode(outs){outs.writeByte(initCodeSize);remaining=width*height;curPixel=0;compress(initCodeSize+1,outs);outs.writeByte(0)}function flush_char(outs){if(a_count>0){outs.writeByte(a_count);outs.writeBytes(accum,0,a_count);a_count=0}}function MAXCODE(n_bits){return(1<<n_bits)-1}function nextPixel(){if(remaining===0)return EOF;--remaining;var pix=pixels[curPixel++];return pix&255}function output(code,outs){cur_accum&=masks[cur_bits];if(cur_bits>0)cur_accum|=code<<cur_bits;else cur_accum=code;cur_bits+=n_bits;while(cur_bits>=8){char_out(cur_accum&255,outs);cur_accum>>=8;cur_bits-=8}if(free_ent>maxcode||clear_flg){if(clear_flg){maxcode=MAXCODE(n_bits=g_init_bits);clear_flg=false}else{++n_bits;if(n_bits==BITS)maxcode=1<<BITS;else maxcode=MAXCODE(n_bits)}}if(code==EOFCode){while(cur_bits>0){char_out(cur_accum&255,outs);cur_accum>>=8;cur_bits-=8}flush_char(outs)}}this.encode=encode}module.exports=LZWEncoder},{}],3:[function(require,module,exports){var ncycles=100;var netsize=256;var maxnetpos=netsize-1;var netbiasshift=4;var intbiasshift=16;var intbias=1<<intbiasshift;var gammashift=10;var gamma=1<<gammashift;var betashift=10;var beta=intbias>>betashift;var betagamma=intbias<<gammashift-betashift;var initrad=netsize>>3;var radiusbiasshift=6;var radiusbias=1<<radiusbiasshift;var initradius=initrad*radiusbias;var radiusdec=30;var alphabiasshift=10;var initalpha=1<<alphabiasshift;var alphadec;var radbiasshift=8;var radbias=1<<radbiasshift;var alpharadbshift=alphabiasshift+radbiasshift;var alpharadbias=1<<alpharadbshift;var prime1=499;var prime2=491;var prime3=487;var prime4=503;var minpicturebytes=3*prime4;function NeuQuant(pixels,samplefac){var network;var netindex;var bias;var freq;var radpower;function init(){network=[];netindex=new Int32Array(256);bias=new Int32Array(netsize);freq=new Int32Array(netsize);radpower=new Int32Array(netsize>>3);var i,v;for(i=0;i<netsize;i++){v=(i<<netbiasshift+8)/netsize;network[i]=new Float64Array([v,v,v,0]);freq[i]=intbias/netsize;bias[i]=0}}function unbiasnet(){for(var i=0;i<netsize;i++){network[i][0]>>=netbiasshift;network[i][1]>>=netbiasshift;network[i][2]>>=netbiasshift;network[i][3]=i}}function altersingle(alpha,i,b,g,r){network[i][0]-=alpha*(network[i][0]-b)/initalpha;network[i][1]-=alpha*(network[i][1]-g)/initalpha;network[i][2]-=alpha*(network[i][2]-r)/initalpha}function alterneigh(radius,i,b,g,r){var lo=Math.abs(i-radius);var hi=Math.min(i+radius,netsize);var j=i+1;var k=i-1;var m=1;var p,a;while(j<hi||k>lo){a=radpower[m++];if(j<hi){p=network[j++];p[0]-=a*(p[0]-b)/alpharadbias;p[1]-=a*(p[1]-g)/alpharadbias;p[2]-=a*(p[2]-r)/alpharadbias}if(k>lo){p=network[k--];p[0]-=a*(p[0]-b)/alpharadbias;p[1]-=a*(p[1]-g)/alpharadbias;p[2]-=a*(p[2]-r)/alpharadbias}}}function contest(b,g,r){var bestd=~(1<<31);var bestbiasd=bestd;var bestpos=-1;var bestbiaspos=bestpos;var i,n,dist,biasdist,betafreq;for(i=0;i<netsize;i++){n=network[i];dist=Math.abs(n[0]-b)+Math.abs(n[1]-g)+Math.abs(n[2]-r);if(dist<bestd){bestd=dist;bestpos=i}biasdist=dist-(bias[i]>>intbiasshift-netbiasshift);if(biasdist<bestbiasd){bestbiasd=biasdist;bestbiaspos=i}betafreq=freq[i]>>betashift;freq[i]-=betafreq;bias[i]+=betafreq<<gammashift}freq[bestpos]+=beta;bias[bestpos]-=betagamma;return bestbiaspos}function inxbuild(){var i,j,p,q,smallpos,smallval,previouscol=0,startpos=0;for(i=0;i<netsize;i++){p=network[i];smallpos=i;smallval=p[1];for(j=i+1;j<netsize;j++){q=network[j];if(q[1]<smallval){smallpos=j;smallval=q[1]}}q=network[smallpos];if(i!=smallpos){j=q[0];q[0]=p[0];p[0]=j;j=q[1];q[1]=p[1];p[1]=j;j=q[2];q[2]=p[2];p[2]=j;j=q[3];q[3]=p[3];p[3]=j}if(smallval!=previouscol){netindex[previouscol]=startpos+i>>1;for(j=previouscol+1;j<smallval;j++)netindex[j]=i;previouscol=smallval;startpos=i}}netindex[previouscol]=startpos+maxnetpos>>1;for(j=previouscol+1;j<256;j++)netindex[j]=maxnetpos}function inxsearch(b,g,r){var a,p,dist;var bestd=1e3;var best=-1;var i=netindex[g];var j=i-1;while(i<netsize||j>=0){if(i<netsize){p=network[i];dist=p[1]-g;if(dist>=bestd)i=netsize;else{i++;if(dist<0)dist=-dist;a=p[0]-b;if(a<0)a=-a;dist+=a;if(dist<bestd){a=p[2]-r;if(a<0)a=-a;dist+=a;if(dist<bestd){bestd=dist;best=p[3]}}}}if(j>=0){p=network[j];dist=g-p[1];if(dist>=bestd)j=-1;else{j--;if(dist<0)dist=-dist;a=p[0]-b;if(a<0)a=-a;dist+=a;if(dist<bestd){a=p[2]-r;if(a<0)a=-a;dist+=a;if(dist<bestd){bestd=dist;best=p[3]}}}}}return best}function learn(){var i;var lengthcount=pixels.length;var alphadec=30+(samplefac-1)/3;var samplepixels=lengthcount/(3*samplefac);var delta=~~(samplepixels/ncycles);var alpha=initalpha;var radius=initradius;var rad=radius>>radiusbiasshift;if(rad<=1)rad=0;for(i=0;i<rad;i++)radpower[i]=alpha*((rad*rad-i*i)*radbias/(rad*rad));var step;if(lengthcount<minpicturebytes){samplefac=1;step=3}else if(lengthcount%prime1!==0){step=3*prime1}else if(lengthcount%prime2!==0){step=3*prime2}else if(lengthcount%prime3!==0){step=3*prime3}else{step=3*prime4}var b,g,r,j;var pix=0;i=0;while(i<samplepixels){b=(pixels[pix]&255)<<netbiasshift;g=(pixels[pix+1]&255)<<netbiasshift;r=(pixels[pix+2]&255)<<netbiasshift;j=contest(b,g,r);altersingle(alpha,j,b,g,r);if(rad!==0)alterneigh(rad,j,b,g,r);pix+=step;if(pix>=lengthcount)pix-=lengthcount;i++;if(delta===0)delta=1;if(i%delta===0){alpha-=alpha/alphadec;radius-=radius/radiusdec;rad=radius>>radiusbiasshift;if(rad<=1)rad=0;for(j=0;j<rad;j++)radpower[j]=alpha*((rad*rad-j*j)*radbias/(rad*rad))}}}function buildColormap(){init();learn();unbiasnet();inxbuild()}this.buildColormap=buildColormap;function getColormap(){var map=[];var index=[];for(var i=0;i<netsize;i++)index[network[i][3]]=i;var k=0;for(var l=0;l<netsize;l++){var j=index[l];map[k++]=network[j][0];map[k++]=network[j][1];map[k++]=network[j][2]}return map}this.getColormap=getColormap;this.lookupRGB=inxsearch}module.exports=NeuQuant},{}],4:[function(require,module,exports){var GIFEncoder,renderFrame;GIFEncoder=require("./GIFEncoder.js");renderFrame=function(frame){var encoder,page,stream,transfer;encoder=new GIFEncoder(frame.width,frame.height);if(frame.index===0){encoder.writeHeader()}else{encoder.firstFrame=false}encoder.setTransparent(frame.transparent);encoder.setRepeat(frame.repeat);encoder.setDelay(frame.delay);encoder.setQuality(frame.quality);encoder.setDither(frame.dither);encoder.setGlobalPalette(frame.globalPalette);encoder.addFrame(frame.data);if(frame.last){encoder.finish()}if(frame.globalPalette===true){frame.globalPalette=encoder.getGlobalPalette()}stream=encoder.stream();frame.data=stream.pages;frame.cursor=stream.cursor;frame.pageSize=stream.constructor.pageSize;if(frame.canTransfer){transfer=function(){var i,len,ref,results;ref=frame.data;results=[];for(i=0,len=ref.length;i<len;i++){page=ref[i];results.push(page.buffer)}return results}();return self.postMessage(frame,transfer)}else{return self.postMessage(frame)}};self.onmessage=function(event){return renderFrame(event.data)}},{"./GIFEncoder.js":1}]},{},[4]);`;
@@ -973,48 +400,181 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 });
 
 // ============================================================
-// CSV GENERATOR (original logic)
+// CSV GENERATOR
 // ============================================================
 (function() {
-  let size = 200;
-  let unitBytes = 1000000;
-  let unitLabel = 'MB';
+  // State
+  let columns = [];
+  let unitBytes = 1000;
   let encoding = 'UTF-8 BOM';
 
-  const sizeInput = document.getElementById('csv-sizeInput');
-  const bytesValue = document.getElementById('csv-bytesValue');
-  const unitButtons = document.getElementById('csv-unitButtons');
-  const encButtons = document.getElementById('csv-encButtons');
-  const generateBtn = document.getElementById('csv-generateBtn');
-  const progressBar = document.getElementById('csv-progressBar');
-  const progressFill = document.getElementById('csv-progressFill');
-  const progressText = document.getElementById('csv-progressText');
-  const warning = document.getElementById('csv-warning');
+  // DOM refs
+  const uploadZone    = document.getElementById('csv-upload-zone');
+  const fileInput     = document.getElementById('csv-file-input');
+  const columnTags    = document.getElementById('csv-column-tags');
+  const noFileMsg     = document.getElementById('csv-no-file-msg');
+  const rowCountInput = document.getElementById('csv-rowCount');
+  const sizeInput     = document.getElementById('csv-sizeInput');
+  const bytesValue    = document.getElementById('csv-bytesValue');
+  const unitButtons   = document.getElementById('csv-unitButtons');
+  const encButtons    = document.getElementById('csv-encButtons');
+  const generateBtn   = document.getElementById('csv-generateBtn');
+  const progressBar   = document.getElementById('csv-progressBar');
+  const progressFill  = document.getElementById('csv-progressFill');
+  const progressText  = document.getElementById('csv-progressText');
+  const warning       = document.getElementById('csv-warning');
 
-  function getTargetBytes() {
-    return Math.round((parseFloat(sizeInput.value) || 0) * unitBytes);
+  // ---- CSV Upload ----
+  uploadZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) parseCSV(e.target.files[0]);
+  });
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('has-file'); });
+  uploadZone.addEventListener('dragleave', () => { if (!columns.length) uploadZone.classList.remove('has-file'); });
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    const f = e.dataTransfer.files[0];
+    if (f) parseCSV(f);
+  });
+
+  function parseCSV(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      processCSVText(text, file.name);
+    };
+    // Try UTF-8 first
+    reader.readAsText(file, 'UTF-8');
   }
 
-  function updateDisplay() {
-    const target = getTargetBytes();
-    bytesValue.textContent = target.toLocaleString();
-    generateBtn.disabled = target <= 0;
-    warning.classList.toggle('hidden', target <= 500000000);
+  function processCSVText(text, filename) {
+    // Remove BOM if present
+    const clean = text.replace(/^\uFEFF/, '');
+    const lines = clean.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 1) return;
+
+    // Parse header
+    const headers = parseCSVLine(lines[0]);
+    if (!headers.length) return;
+
+    // Parse sample rows to detect types
+    const sampleRows = lines.slice(1, Math.min(11, lines.length)).map(parseCSVLine);
+
+    columns = headers.map((name, colIdx) => {
+      const samples = sampleRows.map(r => r[colIdx] || '').filter(v => v !== '');
+      const type = detectType(name, samples);
+      return { name, type, samples };
+    });
+
+    // Update UI
+    uploadZone.classList.add('has-file');
+    uploadZone.innerHTML = `
+      <div class="file-name">✓ ${filename}</div>
+      <div class="file-info">${headers.length} columns · ${lines.length - 1} rows (sample)</div>
+    `;
+    renderColumnTags();
+    noFileMsg.style.display = 'none';
   }
 
+  function parseCSVLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; continue; }
+      cur += c;
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  function detectType(name, samples) {
+    const n = name.toLowerCase();
+    // Name-based heuristics
+    if (/id$|^id/.test(n)) return 'id';
+    if (/date|time|at$/.test(n)) return 'date';
+    if (/email|mail/.test(n)) return 'email';
+    if (/phone|tel/.test(n)) return 'phone';
+    if (/name|名前|氏名/.test(n)) return 'name';
+    if (/city|都市|市/.test(n)) return 'city';
+    if (/status|state|ステータス/.test(n)) return 'enum';
+    if (/score|point|rate|割合|率/.test(n)) return 'number';
+    if (/age|年齢/.test(n)) return 'age';
+    if (/url|link/.test(n)) return 'url';
+    // Value-based heuristics
+    if (samples.length > 0) {
+      if (samples.every(v => /^\d+$/.test(v))) return 'integer';
+      if (samples.every(v => /^[\d.]+$/.test(v))) return 'number';
+      if (samples.every(v => /^\d{4}-\d{2}-\d{2}/.test(v))) return 'date';
+      if (samples.some(v => v.includes('@'))) return 'email';
+      // Enum: if few unique values
+      const unique = new Set(samples);
+      if (unique.size <= 6 && samples.length >= 3) return 'enum';
+    }
+    return 'text';
+  }
+
+  function renderColumnTags() {
+    columnTags.innerHTML = columns.map((c, i) =>
+      `<div class="column-item" id="col-item-${i}">
+        <div class="column-item-header" onclick="toggleCol(${i})">
+          <span class="col-name">${c.name}</span>
+          <span class="col-type">${c.type}</span>
+          <span class="col-auto-badge" id="col-badge-${i}">自動生成</span>
+          <span class="col-arrow">▶</span>
+        </div>
+        <div class="column-data-input">
+          <textarea id="col-textarea-${i}" placeholder="実際のデータを1行1件で入力&#10;例）&#10;山田太郎&#10;鈴木花子&#10;田中一郎" oninput="onColInput(${i})"></textarea>
+          <div class="input-hint">1行1件で入力してください。入力したデータを行数分ループして使用します。空の場合は自動生成されます。</div>
+        </div>
+      </div>`
+    ).join('');
+  }
+
+  window.toggleCol = function(i) {
+    const item = document.getElementById('col-item-' + i);
+    item.classList.toggle('open');
+  };
+
+  window.onColInput = function(i) {
+    const ta = document.getElementById('col-textarea-' + i);
+    const badge = document.getElementById('col-badge-' + i);
+    const item = document.getElementById('col-item-' + i);
+    const vals = ta.value.split('\n').map(v => v.trim()).filter(v => v);
+    if (vals.length > 0) {
+      columns[i].fixedValues = vals;
+      badge.textContent = vals.length + '件';
+      badge.className = 'col-data-badge';
+      item.classList.add('has-data');
+    } else {
+      columns[i].fixedValues = null;
+      badge.textContent = '自動生成';
+      badge.className = 'col-auto-badge';
+      item.classList.remove('has-data');
+    }
+  };
+
+  // ---- Size display ----
   sizeInput.addEventListener('input', updateDisplay);
-
-  unitButtons.addEventListener('click', function(e) {
+  rowCountInput.addEventListener('input', updateDisplay);
+  unitButtons.addEventListener('click', e => {
     const btn = e.target.closest('.unit-btn');
     if (!btn) return;
     unitButtons.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     unitBytes = parseInt(btn.dataset.bytes);
-    unitLabel = btn.dataset.unit;
     updateDisplay();
   });
 
-  encButtons.addEventListener('click', function(e) {
+  function updateDisplay() {
+    const bytes = Math.round((parseFloat(sizeInput.value) || 0) * unitBytes);
+    bytesValue.textContent = bytes.toLocaleString();
+    warning.classList.toggle('hidden', bytes <= 500000000);
+  }
+
+  // ---- Encoding ----
+  encButtons.addEventListener('click', e => {
     const btn = e.target.closest('.enc-btn');
     if (!btn) return;
     encButtons.querySelectorAll('.enc-btn').forEach(b => b.classList.remove('active'));
@@ -1022,9 +582,13 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     encoding = btn.dataset.enc;
   });
 
-  generateBtn.addEventListener('click', async function() {
-    const targetBytes = getTargetBytes();
-    if (targetBytes <= 0) return;
+  // ---- Generate ----
+  generateBtn.addEventListener('click', async () => {
+    if (!columns.length) { noFileMsg.style.display = 'block'; return; }
+    noFileMsg.style.display = 'none';
+    const totalRows = parseInt(rowCountInput.value) || 1000;
+    const targetBytes = Math.round((parseFloat(sizeInput.value) || 0) * unitBytes);
+    if (totalRows <= 0 || targetBytes <= 0) return;
 
     generateBtn.classList.add('hidden');
     progressBar.classList.remove('hidden');
@@ -1032,91 +596,10 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     progressFill.classList.remove('done');
     progressText.classList.remove('done');
     progressText.textContent = 'GENERATING... 0%';
-
     await new Promise(r => setTimeout(r, 50));
 
     try {
-      const hasBOM = encoding === 'UTF-8 BOM';
-      const headers = ['id','name','email','age','city','phone','created_at','status','score','note'];
-      const headerLine = headers.join(',') + '\n';
-
-      const names = ['田中太郎','鈴木花子','佐藤一郎','高橋美咲','伊藤健太','渡辺真理','山本大輔','中村さくら','小林誠','加藤由美'];
-      const cities = ['東京','大阪','名古屋','福岡','札幌','横浜','神戸','京都','仙台','広島'];
-      const statuses = ['active','inactive','pending','deleted'];
-
-      const encoder = new TextEncoder();
-      let currentSize = encoder.encode(headerLine).length + (hasBOM ? 3 : 0);
-      const chunks = [headerLine];
-      let id = 1;
-      let lastProgress = 0;
-      const batchSize = 1000;
-
-      while (currentSize < targetBytes) {
-        let batch = '';
-        for (let i = 0; i < batchSize && currentSize < targetBytes; i++) {
-          const name = names[id % names.length];
-          const city = cities[id % cities.length];
-          const status = statuses[id % statuses.length];
-          const age = 20 + (id % 50);
-          const score = (id * 17) % 100;
-          const phone = '090-' + String(1000 + (id % 9000)).padStart(4,'0') + '-' + String(1000 + ((id*7) % 9000)).padStart(4,'0');
-          const date = '2024-' + String(1 + (id % 12)).padStart(2,'0') + '-' + String(1 + (id % 28)).padStart(2,'0');
-          const email = 'user' + id + '@example.com';
-          const note = 'テストデータ' + id;
-          const row = id+','+name+','+email+','+age+','+city+','+phone+','+date+','+status+','+score+','+note+'\n';
-          const rowByteLen = encoder.encode(row).length;
-
-          if (currentSize + rowByteLen > targetBytes * 1.005) { currentSize = targetBytes; break; }
-
-          batch += row;
-          currentSize += rowByteLen;
-          id++;
-        }
-        if (batch) chunks.push(batch);
-
-        const p = Math.min(99, Math.floor((currentSize / targetBytes) * 100));
-        if (p > lastProgress + 1) {
-          lastProgress = p;
-          progressFill.style.width = p + '%';
-          progressText.textContent = 'GENERATING... ' + p + '%';
-          await new Promise(r => setTimeout(r, 0));
-        }
-        if (id > 100000000) break;
-      }
-
-      progressFill.style.width = '100%';
-      progressText.textContent = 'GENERATING... 100%';
-      await new Promise(r => setTimeout(r, 100));
-
-      const fullText = chunks.join('');
-      let blob;
-      if (encoding === 'Shift-JIS') {
-        blob = new Blob([fullText], { type: 'text/csv;charset=shift_jis' });
-      } else if (hasBOM) {
-        const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
-        blob = new Blob([bom, encoder.encode(fullText)], { type: 'text/csv;charset=utf-8' });
-      } else {
-        blob = new Blob([fullText], { type: 'text/csv;charset=utf-8' });
-      }
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'test_data_' + sizeInput.value + unitLabel + '.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      progressFill.classList.add('done');
-      progressText.classList.add('done');
-      progressText.textContent = '✓ COMPLETE';
-
-      setTimeout(function() {
-        progressBar.classList.add('hidden');
-        generateBtn.classList.remove('hidden');
-      }, 2500);
-
+      await generateRowsAndSize(totalRows, targetBytes);
     } catch(e) {
       console.error(e);
       progressBar.classList.add('hidden');
@@ -1124,302 +607,311 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     }
   });
 
+  // ---- Data generators by type ----
+  const NAMES = ['田中太郎','鈴木花子','佐藤一郎','高橋美咲','伊藤健太','渡辺真理','山本大輔','中村さくら','小林誠','加藤由美','松本拓也','井上あかり'];
+  const CITIES = ['東京','大阪','名古屋','福岡','札幌','横浜','神戸','京都','仙台','広島','千葉','埼玉'];
+  const STATUSES = ['active','inactive','pending','deleted','suspended'];
+  const DOMAINS = ['example.com','test.jp','sample.co.jp','dummy.org'];
+
+  function generateValue(col, rowIdx) {
+    const { name, type, samples, fixedValues } = col;
+    // Use fixed values (real data) if provided
+    if (fixedValues && fixedValues.length > 0) {
+      return fixedValues[rowIdx % fixedValues.length];
+    }
+    // If we have actual sample values for enum, rotate through them
+    if (type === 'enum' && samples.length > 0) {
+      return samples[rowIdx % samples.length];
+    }
+    switch (type) {
+      case 'id':
+        return String(rowIdx + 1);
+      case 'integer':
+        return String((rowIdx * 13 + 7) % 10000);
+      case 'number':
+        return ((rowIdx * 7.3) % 100).toFixed(2);
+      case 'age':
+        return String(18 + (rowIdx % 60));
+      case 'date': {
+        const y = 2020 + (rowIdx % 5);
+        const m = String(1 + (rowIdx % 12)).padStart(2, '0');
+        const d = String(1 + (rowIdx % 28)).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      case 'email':
+        return `user${rowIdx + 1}@${DOMAINS[rowIdx % DOMAINS.length]}`;
+      case 'phone':
+        return `090-${String(1000 + (rowIdx % 9000)).padStart(4,'0')}-${String(1000 + ((rowIdx*7) % 9000)).padStart(4,'0')}`;
+      case 'name':
+        return NAMES[rowIdx % NAMES.length];
+      case 'city':
+        return CITIES[rowIdx % CITIES.length];
+      case 'url':
+        return `https://example.com/item/${rowIdx + 1}`;
+      case 'text':
+      default:
+        return `${name}_${rowIdx + 1}`;
+    }
+  }
+
+  function buildRow(rowIdx) {
+    return columns.map(c => {
+      const v = generateValue(c, rowIdx);
+      // Quote if contains comma or newline
+      return (v.includes(',') || v.includes('\n') || v.includes('"'))
+        ? `"${v.replace(/"/g, '""')}"` : v;
+    }).join(',') + '\n';
+  }
+
+  function buildHeader() {
+    return columns.map(c =>
+      c.name.includes(',') ? `"${c.name}"` : c.name
+    ).join(',') + '\n';
+  }
+
+  async function finalizeAndDownload(chunks, filename) {
+    progressFill.style.width = '100%';
+    progressText.textContent = 'GENERATING... 100%';
+    await new Promise(r => setTimeout(r, 100));
+
+    const hasBOM = encoding === 'UTF-8 BOM';
+    const encoder = new TextEncoder();
+    const fullText = chunks.join('');
+    let blob;
+    if (encoding === 'Shift-JIS') {
+      blob = new Blob([fullText], { type: 'text/csv;charset=shift_jis' });
+    } else if (hasBOM) {
+      const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+      blob = new Blob([bom, encoder.encode(fullText)], { type: 'text/csv;charset=utf-8' });
+    } else {
+      blob = new Blob([fullText], { type: 'text/csv;charset=utf-8' });
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    progressFill.classList.add('done');
+    progressText.classList.add('done');
+    progressText.textContent = '✓ COMPLETE';
+    setTimeout(() => {
+      progressBar.classList.add('hidden');
+      generateBtn.classList.remove('hidden');
+    }, 2500);
+  }
+
+  async function generateRowsAndSize(totalRows, targetBytes) {
+    const encoder = new TextEncoder();
+    const hasBOM = encoding === 'UTF-8 BOM';
+    const header = buildHeader();
+    const headerBytes = encoder.encode(header).length + (hasBOM ? 3 : 0);
+
+    // Calculate bytes available for data rows
+    const dataBytes = targetBytes - headerBytes;
+    if (dataBytes <= 0) { alert('サイズが小さすぎます'); return; }
+
+    // Generate all rows first to measure average row size
+    // Then pad the last column (note) to hit exact target size
+    const rows = [];
+    for (let i = 0; i < totalRows; i++) rows.push(buildRow(i));
+
+    // Measure current total
+    let currentDataBytes = rows.reduce((s, r) => s + encoder.encode(r).length, 0);
+
+    // Find the padding column index (last text/note-like column, or last column)
+    const padColIdx = (() => {
+      for (let i = columns.length - 1; i >= 0; i--) {
+        if (['text','note','url','email','name'].includes(columns[i].type)) return i;
+      }
+      return columns.length - 1;
+    })();
+
+    const diff = dataBytes - currentDataBytes;
+
+    if (diff > 0) {
+      // Need to add padding: distribute extra bytes across all rows
+      const padPerRow = Math.floor(diff / totalRows);
+      const extraOnLast = diff - padPerRow * totalRows;
+      const pad = 'x'.repeat(padPerRow);
+      // Rebuild rows with padding inserted into padColIdx
+      for (let i = 0; i < totalRows; i++) {
+        const rowPad = pad + (i === totalRows - 1 ? 'x'.repeat(extraOnLast) : '');
+        rows[i] = buildRowWithPad(i, padColIdx, rowPad);
+      }
+    } else if (diff < 0) {
+      // Need to trim: truncate padColIdx values
+      // Recalculate how much to cut per row
+      const cutPerRow = Math.ceil(-diff / totalRows);
+      for (let i = 0; i < totalRows; i++) {
+        rows[i] = buildRowTrimmed(i, padColIdx, cutPerRow);
+      }
+    }
+
+    // Build chunks in batches for progress updates
+    const batchSize = 2000;
+    const chunks = [header];
+    for (let i = 0; i < totalRows; i += batchSize) {
+      chunks.push(rows.slice(i, i + batchSize).join(''));
+      const p = Math.min(99, Math.floor(((i + batchSize) / totalRows) * 100));
+      progressFill.style.width = p + '%';
+      progressText.textContent = `GENERATING... ${p}%`;
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    const unitLabel = unitButtons.querySelector('.active').dataset.unit;
+    await finalizeAndDownload(chunks, `test_data_${totalRows}rows_${sizeInput.value}${unitLabel}.csv`);
+  }
+
+  function buildRowWithPad(rowIdx, padColIdx, pad) {
+    return columns.map((c, ci) => {
+      let v = generateValue(c, rowIdx);
+      if (ci === padColIdx) v = v + pad;
+      return (v.includes(',') || v.includes('\n') || v.includes('"'))
+        ? `"${v.replace(/"/g, '""')}"` : v;
+    }).join(',') + '\n';
+  }
+
+  function buildRowTrimmed(rowIdx, padColIdx, cutChars) {
+    return columns.map((c, ci) => {
+      let v = generateValue(c, rowIdx);
+      if (ci === padColIdx && v.length > cutChars + 1) v = v.slice(0, Math.max(1, v.length - cutChars));
+      return (v.includes(',') || v.includes('\n') || v.includes('"'))
+        ? `"${v.replace(/"/g, '""')}"` : v;
+    }).join(',') + '\n';
+  }
+
   updateDisplay();
 })();
 
 // ============================================================
-// GIF MAKER
+// GIF MAKER (unchanged from original)
 // ============================================================
 (function() {
-  const state = {
-    images: [],
-    gifBlob: null,
-    fps: 10,
-    quality: 10,
-    outputSize: 'original',
-    isGenerating: false,
-    previewInterval: null,
-    previewFrame: 0,
-  };
-
-  const uploadZone = document.getElementById('gif-upload-zone');
-  const fileInput = document.getElementById('gif-file-input');
-  const thumbGrid = document.getElementById('gif-thumb-grid');
+  const state = { images: [], gifBlob: null, fps: 10, quality: 10, outputSize: 'original', isGenerating: false, previewInterval: null, previewFrame: 0 };
+  const uploadZone   = document.getElementById('gif-upload-zone');
+  const fileInput    = document.getElementById('gif-file-input');
+  const thumbGrid    = document.getElementById('gif-thumb-grid');
   const frameCountEl = document.getElementById('gif-frame-count');
-  const fpsRange = document.getElementById('gif-fps-range');
-  const fpsLabel = document.getElementById('gif-fps-label');
-  const btnPreview = document.getElementById('gif-btn-preview');
-  const btnDownload = document.getElementById('gif-btn-download');
-  const canvas = document.getElementById('gif-canvas');
-  const previewImg = document.getElementById('gif-preview-img');
-  const placeholder = document.getElementById('gif-placeholder');
-  const previewMeta = document.getElementById('gif-preview-meta');
-  const metaSize = document.getElementById('gif-meta-size');
-  const metaFrames = document.getElementById('gif-meta-frames');
-  const metaFps = document.getElementById('gif-meta-fps');
+  const fpsRange     = document.getElementById('gif-fps-range');
+  const fpsLabel     = document.getElementById('gif-fps-label');
+  const btnPreview   = document.getElementById('gif-btn-preview');
+  const btnDownload  = document.getElementById('gif-btn-download');
+  const canvas       = document.getElementById('gif-canvas');
+  const previewImg   = document.getElementById('gif-preview-img');
+  const placeholder  = document.getElementById('gif-placeholder');
+  const previewMeta  = document.getElementById('gif-preview-meta');
+  const metaSize     = document.getElementById('gif-meta-size');
+  const metaFrames   = document.getElementById('gif-meta-frames');
+  const metaFps      = document.getElementById('gif-meta-fps');
   const progressWrap = document.getElementById('gif-progress-wrap');
   const progressFill = document.getElementById('gif-progress-fill');
   const progressText = document.getElementById('gif-progress-text');
-  const progressPct = document.getElementById('gif-progress-pct');
-  const workerMsg = document.getElementById('gif-worker-msg');
+  const progressPct  = document.getElementById('gif-progress-pct');
+  const workerMsg    = document.getElementById('gif-worker-msg');
 
-  // Upload
   uploadZone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => handleFiles(e.target.files));
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    handleFiles(e.dataTransfer.files);
-  });
+  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
 
   async function handleFiles(files) {
     const imgs = Array.from(files).filter(f => f.type.startsWith('image/'));
     if (!imgs.length) return;
     for (const file of imgs) {
       const src = await readFile(file);
-      const img = new Image();
-      img.src = src;
+      const img = new Image(); img.src = src;
       await new Promise(r => img.onload = r);
       state.images.push({ file, src, img });
     }
-    renderThumbs();
-    updateControls();
-    stopPreview();
-    state.gifBlob = null;
+    renderThumbs(); updateControls(); stopPreview(); state.gifBlob = null;
   }
-
-  function readFile(file) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
+  function readFile(file) { return new Promise((res,rej) => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(file); }); }
 
   let dragSrc = null;
-
   function renderThumbs() {
     thumbGrid.innerHTML = '';
     frameCountEl.textContent = state.images.length + ' frames';
-
-    if (!state.images.length) {
-      thumbGrid.innerHTML = '<div class="thumb-empty">画像をアップロードしてください<br>ドラッグで並び替え可能</div>';
-      return;
-    }
-
+    if (!state.images.length) { thumbGrid.innerHTML = '<div class="thumb-empty">画像をアップロードしてください<br>ドラッグで並び替え可能</div>'; return; }
     state.images.forEach((item, i) => {
-      const div = document.createElement('div');
-      div.className = 'thumb-item';
-      div.draggable = true;
-      div.dataset.index = i;
-
-      const img = document.createElement('img');
-      img.src = item.src;
-
-      const num = document.createElement('div');
-      num.className = 'thumb-num';
-      num.textContent = i + 1;
-
-      const del = document.createElement('button');
-      del.className = 'thumb-del';
-      del.textContent = '✕';
-      del.addEventListener('click', e => {
-        e.stopPropagation();
-        state.images.splice(i, 1);
-        renderThumbs();
-        updateControls();
-        stopPreview();
-        state.gifBlob = null;
-        btnDownload.disabled = true;
-      });
-
-      div.append(img, num, del);
-      thumbGrid.appendChild(div);
-
-      div.addEventListener('dragstart', () => { dragSrc = i; div.classList.add('dragging'); });
+      const div = document.createElement('div'); div.className = 'thumb-item'; div.draggable = true; div.dataset.index = i;
+      const img = document.createElement('img'); img.src = item.src;
+      const num = document.createElement('div'); num.className = 'thumb-num'; num.textContent = i+1;
+      const del = document.createElement('button'); del.className = 'thumb-del'; del.textContent = '✕';
+      del.addEventListener('click', e => { e.stopPropagation(); state.images.splice(i,1); renderThumbs(); updateControls(); stopPreview(); state.gifBlob=null; btnDownload.disabled=true; });
+      div.append(img, num, del); thumbGrid.appendChild(div);
+      div.addEventListener('dragstart', () => { dragSrc=i; div.classList.add('dragging'); });
       div.addEventListener('dragend', () => div.classList.remove('dragging'));
       div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drag-over-target'); });
       div.addEventListener('dragleave', () => div.classList.remove('drag-over-target'));
-      div.addEventListener('drop', e => {
-        e.preventDefault();
-        div.classList.remove('drag-over-target');
-        if (dragSrc === null || dragSrc === i) return;
-        const moved = state.images.splice(dragSrc, 1)[0];
-        state.images.splice(i, 0, moved);
-        renderThumbs();
-        stopPreview();
-        state.gifBlob = null;
-      });
+      div.addEventListener('drop', e => { e.preventDefault(); div.classList.remove('drag-over-target'); if(dragSrc===null||dragSrc===i)return; const moved=state.images.splice(dragSrc,1)[0]; state.images.splice(i,0,moved); renderThumbs(); stopPreview(); state.gifBlob=null; });
     });
   }
+  function updateControls() { btnPreview.disabled = state.images.length < 2; }
 
-  function updateControls() {
-    const ok = state.images.length >= 2;
-    btnPreview.disabled = !ok;
-  }
-
-  // FPS
-  fpsRange.addEventListener('input', () => {
-    state.fps = parseInt(fpsRange.value);
-    fpsLabel.textContent = state.fps + ' fps';
-    if (state.previewInterval) { stopPreview(); startCanvasPreview(); }
-  });
-
-  // Size tabs
-  document.querySelectorAll('[data-size]').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('[data-size]').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      state.outputSize = tab.dataset.size;
-    });
-  });
-
-  // Quality tabs
-  document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      state.quality = parseInt(tab.dataset.q);
-    });
-  });
+  fpsRange.addEventListener('input', () => { state.fps=parseInt(fpsRange.value); fpsLabel.textContent=state.fps+' fps'; if(state.previewInterval){stopPreview();startCanvasPreview();} });
+  document.querySelectorAll('[data-size]').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('[data-size]').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); state.outputSize=tab.dataset.size; }); });
+  document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('#gif-quality-tabs .tab-btn').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); state.quality=parseInt(tab.dataset.q); }); });
 
   function getOutputDimensions() {
-    const first = state.images[0].img;
-    if (state.outputSize === 'original') return { w: first.naturalWidth, h: first.naturalHeight };
-    const tw = parseInt(state.outputSize);
-    return { w: tw, h: Math.round(tw * (first.naturalHeight / first.naturalWidth)) };
+    const first=state.images[0].img;
+    if(state.outputSize==='original') return {w:first.naturalWidth,h:first.naturalHeight};
+    const tw=parseInt(state.outputSize);
+    return {w:tw,h:Math.round(tw*(first.naturalHeight/first.naturalWidth))};
   }
-
   function startCanvasPreview() {
-    if (!state.images.length) return;
-    const { w, h } = getOutputDimensions();
-    canvas.width = w;
-    canvas.height = h;
-    canvas.style.display = 'block';
-    previewImg.style.display = 'none';
-    placeholder.style.display = 'none';
-    previewMeta.style.display = 'flex';
-    metaSize.textContent = w + '×' + h;
-    metaFrames.textContent = state.images.length + ' frames';
-    metaFps.textContent = state.fps + ' fps';
-
-    const ctx = canvas.getContext('2d');
-    state.previewFrame = 0;
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(state.images[state.previewFrame].img, 0, 0, w, h);
-      state.previewFrame = (state.previewFrame + 1) % state.images.length;
-    }
-    draw();
-    state.previewInterval = setInterval(draw, 1000 / state.fps);
+    if(!state.images.length) return;
+    const {w,h}=getOutputDimensions(); canvas.width=w; canvas.height=h;
+    canvas.style.display='block'; previewImg.style.display='none'; placeholder.style.display='none';
+    previewMeta.style.display='flex'; metaSize.textContent=w+'×'+h; metaFrames.textContent=state.images.length+' frames'; metaFps.textContent=state.fps+' fps';
+    const ctx=canvas.getContext('2d'); state.previewFrame=0;
+    function draw(){ctx.clearRect(0,0,w,h);ctx.drawImage(state.images[state.previewFrame].img,0,0,w,h);state.previewFrame=(state.previewFrame+1)%state.images.length;}
+    draw(); state.previewInterval=setInterval(draw,1000/state.fps);
   }
+  function stopPreview() { if(state.previewInterval){clearInterval(state.previewInterval);state.previewInterval=null;} }
 
-  function stopPreview() {
-    if (state.previewInterval) { clearInterval(state.previewInterval); state.previewInterval = null; }
-  }
-
-  btnPreview.addEventListener('click', () => {
-    if (state.images.length < 2) return;
-    stopPreview();
-    state.gifBlob = null;
-    workerMsg.textContent = '';
-    startCanvasPreview();
-    // Enable download after preview
-    if (!state.isGenerating) btnDownload.disabled = false;
-  });
-
-  btnDownload.addEventListener('click', async () => {
-    if (state.gifBlob) { downloadBlob(state.gifBlob); return; }
-    await generateGif();
-  });
+  btnPreview.addEventListener('click', () => { if(state.images.length<2)return; stopPreview(); state.gifBlob=null; workerMsg.textContent=''; startCanvasPreview(); if(!state.isGenerating)btnDownload.disabled=false; });
+  btnDownload.addEventListener('click', async () => { if(state.gifBlob){downloadBlob(state.gifBlob);return;} await generateGif(); });
 
   async function generateGif() {
-    if (state.isGenerating || state.images.length < 2) return;
-    state.isGenerating = true;
-    stopPreview();
-
-    progressWrap.style.display = 'block';
-    progressFill.style.width = '0%';
-    progressText.textContent = 'GIF GENERATING...';
-    progressPct.textContent = '0%';
-    btnPreview.disabled = true;
-    btnDownload.disabled = true;
-    workerMsg.textContent = '';
-
-    const { w, h } = getOutputDimensions();
-    const delay = Math.round(1000 / state.fps);
-
-    const off = document.createElement('canvas');
-    off.width = w; off.height = h;
-    const ctx = off.getContext('2d');
-
-    const gif = new GIF({
-      workers: 2,
-      quality: state.quality,
-      width: w, height: h,
-      workerScript: window._gifWorkerURL,
-    });
-
-    gif.on('progress', p => {
-      const pct = Math.round(p * 100);
-      progressFill.style.width = pct + '%';
-      progressPct.textContent = pct + '%';
-    });
-
+    if(state.isGenerating||state.images.length<2) return;
+    state.isGenerating=true; stopPreview();
+    progressWrap.style.display='block'; progressFill.style.width='0%'; progressText.textContent='GIF GENERATING...'; progressPct.textContent='0%';
+    btnPreview.disabled=true; btnDownload.disabled=true; workerMsg.textContent='';
+    const {w,h}=getOutputDimensions(); const delay=Math.round(1000/state.fps);
+    const off=document.createElement('canvas'); off.width=w; off.height=h; const ctx=off.getContext('2d');
+    const gif=new GIF({workers:2,quality:state.quality,width:w,height:h,workerScript:window._gifWorkerURL});
+    gif.on('progress', p => { const pct=Math.round(p*100); progressFill.style.width=pct+'%'; progressPct.textContent=pct+'%'; });
     gif.on('finished', blob => {
-      state.gifBlob = blob;
-      state.isGenerating = false;
-      progressWrap.style.display = 'none';
-      btnPreview.disabled = state.images.length < 2;
-      btnDownload.disabled = false;
-
-      const url = URL.createObjectURL(blob);
-      canvas.style.display = 'none';
-      previewImg.src = url;
-      previewImg.style.display = 'block';
-      placeholder.style.display = 'none';
-      previewMeta.style.display = 'flex';
-      metaSize.textContent = w + '×' + h + ' / ' + Math.round(blob.size/1024) + 'KB';
-
-      workerMsg.textContent = '✓ ' + Math.round(blob.size/1024) + ' KB — 完成';
-      workerMsg.style.color = 'var(--green)';
+      state.gifBlob=blob; state.isGenerating=false; progressWrap.style.display='none';
+      btnPreview.disabled=state.images.length<2; btnDownload.disabled=false;
+      const url=URL.createObjectURL(blob); canvas.style.display='none';
+      previewImg.src=url; previewImg.style.display='block'; placeholder.style.display='none';
+      previewMeta.style.display='flex'; metaSize.textContent=w+'×'+h+' / '+Math.round(blob.size/1024)+'KB';
+      workerMsg.textContent='✓ '+Math.round(blob.size/1024)+' KB — 完成'; workerMsg.style.color='var(--green)';
       downloadBlob(blob);
     });
-
     gif.on('error', () => {
-      state.isGenerating = false;
-      progressWrap.style.display = 'none';
-      btnPreview.disabled = state.images.length < 2;
-      btnDownload.disabled = false;
-      workerMsg.textContent = '⚠ Workerエラー。ローカルサーバーで開いてください。';
-      workerMsg.style.color = '#ff5566';
+      state.isGenerating=false; progressWrap.style.display='none';
+      btnPreview.disabled=state.images.length<2; btnDownload.disabled=false;
+      workerMsg.textContent='⚠ Workerエラー。ローカルサーバーで開いてください。'; workerMsg.style.color='#ff5566';
       startCanvasPreview();
     });
-
-    for (let i = 0; i < state.images.length; i++) {
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(state.images[i].img, 0, 0, w, h);
-      progressText.textContent = 'FRAME ' + (i+1) + ' / ' + state.images.length;
-      gif.addFrame(off, { delay, copy: true });
-      await new Promise(r => setTimeout(r, 8));
+    for(let i=0;i<state.images.length;i++){
+      ctx.clearRect(0,0,w,h); ctx.drawImage(state.images[i].img,0,0,w,h);
+      progressText.textContent='FRAME '+(i+1)+' / '+state.images.length;
+      gif.addFrame(off,{delay,copy:true}); await new Promise(r=>setTimeout(r,8));
     }
-
     gif.render();
   }
-
   function downloadBlob(blob) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'animation_' + state.fps + 'fps_' + Date.now() + '.gif';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download='animation_'+state.fps+'fps_'+Date.now()+'.gif';
+    a.style.display='none'; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),10000);
   }
 })();
 </script>
