@@ -85,6 +85,8 @@ body { background: var(--bg); font-family: var(--font); display: flex; -webkit-f
 .col-type { color: var(--muted); font-size: 8px; padding: 1px 5px; background: var(--surface2); border-radius: 1px; letter-spacing: 0.06em; }
 .col-data-badge { margin-left: auto; font-size: 8px; color: var(--green); letter-spacing: 0.04em; }
 .col-auto-badge { margin-left: auto; font-size: 8px; color: var(--muted); letter-spacing: 0.04em; }
+.col-csv-badge { margin-left: 6px; font-size: 8px; padding: 2px 5px; background: rgba(0,128,64,0.06); color: var(--green); border-radius: 2px; letter-spacing: 0.04em; }
+.sample-preview { font-size: 10px; color: var(--muted); margin-bottom: 8px; }
 .col-pad-btn { font-size: 8px; padding: 2px 7px; background: transparent; border: 1px solid #554400; color: #886600; border-radius: 2px; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .col-pad-btn:hover { border-color: #ffaa00; color: #ffaa00; }
 .col-pad-btn.selected { background: #ffaa00; color: #000; border-color: #ffaa00; font-weight: 700; }
@@ -498,6 +500,10 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     return result;
   }
 
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function detectType(name, samples) {
     const n = name.toLowerCase();
     // Name-based heuristics
@@ -530,15 +536,21 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
   function renderColumnTags() {
     columnTags.innerHTML = columns.map((c, i) => {
       const padBtn = `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`;
+      const csvCount = Array.isArray(csvRows) ? csvRows.reduce((n,row)=> (row[i] && String(row[i]).trim())? n+1:n, 0) : 0;
+      const csvBadge = csvCount > 0 ? `<span class="col-csv-badge" id="col-csv-${i}">CSV ${csvCount}件</span>` : '';
+      const previewVals = (Array.isArray(csvRows) && csvRows.length>0) ? csvRows.slice(0,6).map(r=> (r[i]||'').trim()).filter(v=>v) : [];
+      const previewHTML = previewVals.length ? `<div class="sample-preview">例: ${previewVals.map(v=> escapeHtml(v)).join(' / ')}</div>` : '';
       return `<div class="column-item" id="col-item-${i}">
         <div class="column-item-header" onclick="toggleCol(${i})">
           <span class="col-name">${c.name}</span>
           <span class="col-type">${c.type}</span>
           ${padBtn}
+          ${csvBadge}
           <span class="col-auto-badge" id="col-badge-${i}">自動生成</span>
           <span class="col-arrow">▶</span>
         </div>
         <div class="column-data-input">
+          ${previewHTML}
           <textarea id="col-textarea-${i}" placeholder="実際のデータを1行1件で入力&#10;例）&#10;山田太郎&#10;鈴木花子&#10;田中一郎" oninput="onColInput(${i})"></textarea>
           <div class="input-hint">1行1件で入力してください。入力したデータを行数分ループして使用します。空の場合は自動生成されます。</div>
         </div>
