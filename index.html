@@ -663,12 +663,16 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
   function generateValue(col, rowIdx, colIdx) {
     const { name, type, samples, fixedValues } = col;
-    // Prefer original CSV cell value if present
+    // Prefer original CSV cell value if present. If the CSV cell exists but is empty, preserve the empty string
     if (Array.isArray(csvRows) && csvRows.length > 0) {
       const csvRow = csvRows[rowIdx % csvRows.length];
       if (csvRow) {
-        const csvVal = (csvRow[colIdx] || '').trim();
-        if (csvVal !== '') return csvVal;
+        const rawCsv = csvRow[colIdx];
+        if (rawCsv !== undefined) {
+          const csvVal = String(rawCsv).trim();
+          if (csvVal !== '') return csvVal; // non-empty -> keep
+          return ''; // empty in original CSV -> preserve emptiness so pad can be applied to this column
+        }
       }
     }
     // Use fixed values (real data) if provided
