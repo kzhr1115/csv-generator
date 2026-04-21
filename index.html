@@ -410,6 +410,7 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 (function() {
   // State
   let columns = [];
+  let csvRows = []; // full CSV data rows (array of arrays)
   let unitBytes = 1000;
   let encoding = 'UTF-8 BOM';
 
@@ -464,6 +465,9 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
     // Parse sample rows to detect types
     const sampleRows = lines.slice(1, Math.min(11, lines.length)).map(parseCSVLine);
+
+    // Preserve full CSV data rows (excluding header)
+    csvRows = lines.slice(1).map(parseCSVLine);
 
     columns = headers.map((name, colIdx) => {
       const samples = sampleRows.map(r => r[colIdx] || '').filter(v => v !== '');
@@ -645,8 +649,16 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
   const STATUSES = ['active','inactive','pending','deleted','suspended'];
   const DOMAINS = ['example.com','test.jp','sample.co.jp','dummy.org'];
 
-  function generateValue(col, rowIdx) {
+  function generateValue(col, rowIdx, colIdx) {
     const { name, type, samples, fixedValues } = col;
+    // Prefer original CSV cell value if present
+    if (Array.isArray(csvRows) && csvRows.length > 0) {
+      const csvRow = csvRows[rowIdx % csvRows.length];
+      if (csvRow) {
+        const csvVal = (csvRow[colIdx] || '').trim();
+        if (csvVal !== '') return csvVal;
+      }
+    }
     // Use fixed values (real data) if provided
     if (fixedValues && fixedValues.length > 0) {
       return fixedValues[rowIdx % fixedValues.length];
@@ -687,8 +699,8 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
   }
 
   function buildRow(rowIdx) {
-    return columns.map(c => {
-      const v = generateValue(c, rowIdx);
+    return columns.map((c, ci) => {
+      const v = generateValue(c, rowIdx, ci);
       // Quote if contains comma or newline
       return (v.includes(',') || v.includes('\n') || v.includes('"'))
         ? `"${v.replace(/"/g, '""')}"` : v;
@@ -771,10 +783,17 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
       // Need to add padding: distribute extra bytes across all rows
       const padPerRow = Math.floor(diff / totalRows);
       const extraOnLast = diff - padPerRow * totalRows;
-      const pad = 'x'.repeat(padPerRow);
+      // Use 'xxxxx' token for padding where possible
+      const unit = 'xxxxx';
+      const fullRepeats = Math.floor(padPerRow / unit.length);
+      const rem = padPerRow % unit.length;
+      const pad = unit.repeat(fullRepeats) + 'x'.repeat(rem);
       // Rebuild rows with padding inserted into padColIdx
       for (let i = 0; i < totalRows; i++) {
-        const rowPad = pad + (i === totalRows - 1 ? 'x'.repeat(extraOnLast) : '');
+        const extraForThis = (i === totalRows - 1) ? extraOnLast : 0;
+        const extraFull = Math.floor(extraForThis / unit.length);
+        const extraRem = extraForThis % unit.length;
+        const rowPad = pad + unit.repeat(extraFull) + 'x'.repeat(extraRem);
         rows[i] = buildRowWithPad(i, resolvedPadColIdx, rowPad);
       }
     } else if (diff < 0) {
@@ -803,7 +822,7 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
   function buildRowWithPad(rowIdx, padColIdx, pad) {
     return columns.map((c, ci) => {
-      let v = generateValue(c, rowIdx);
+      let v = generateValue(c, rowIdx, ci);
       if (ci === padColIdx) v = v + pad;
       return (v.includes(',') || v.includes('\n') || v.includes('"'))
         ? `"${v.replace(/"/g, '""')}"` : v;
@@ -812,7 +831,7 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
   function buildRowTrimmed(rowIdx, padColIdx, cutChars) {
     return columns.map((c, ci) => {
-      let v = generateValue(c, rowIdx);
+      let v = generateValue(c, rowIdx, ci);
       if (ci === padColIdx && v.length > cutChars + 1) v = v.slice(0, Math.max(1, v.length - cutChars));
       return (v.includes(',') || v.includes('\n') || v.includes('"'))
         ? `"${v.replace(/"/g, '""')}"` : v;
