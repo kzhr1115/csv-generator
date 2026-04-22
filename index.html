@@ -531,15 +531,16 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
   }
 
   const TEXT_TYPES = ['text', 'note', 'url', 'email', 'name', 'city', 'integer', 'number', 'age', 'phone'];
-  let padColIdx = -1; // -1 = auto
+  let padCols = new Set(); // set of pad column indexes (empty = auto)
 
   function renderColumnTags() {
     columnTags.innerHTML = columns.map((c, i) => {
-      const padBtn = `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`;
+        const padBtn = `<button class="col-pad-btn" id="col-pad-${i}" onclick="selectPadCol(event,${i})">PAD</button>`;
       const csvCount = Array.isArray(csvRows) ? csvRows.reduce((n,row)=> (row[i] && String(row[i]).trim())? n+1:n, 0) : 0;
       const csvBadge = csvCount > 0 ? `<span class="col-csv-badge" id="col-csv-${i}">CSV ${csvCount}件</span>` : '';
       const previewVals = (Array.isArray(csvRows) && csvRows.length>0) ? csvRows.slice(0,6).map(r=> (r[i]||'').trim()).filter(v=>v) : [];
       const previewHTML = previewVals.length ? `<div class="sample-preview">例: ${previewVals.map(v=> escapeHtml(v)).join(' / ')}</div>` : '';
+      const padMaxInput = `<div style="margin-top:6px; font-size:10px; color:var(--muted);">PAD上限（1行あたり）: <input type="number" id="col-padmax-${i}" min="0" placeholder="0=無制限" oninput="onPadMaxInput(${i})" style="width:120px; background:var(--bg); border:1px solid var(--border); color:var(--green); padding:4px; border-radius:2px;"></div>`;
       return `<div class="column-item" id="col-item-${i}">
         <div class="column-item-header" onclick="toggleCol(${i})">
           <span class="col-name">${c.name}</span>
@@ -552,6 +553,7 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
         <div class="column-data-input">
           ${previewHTML}
           <textarea id="col-textarea-${i}" placeholder="実際のデータを1行1件で入力&#10;例）&#10;山田太郎&#10;鈴木花子&#10;田中一郎" oninput="onColInput(${i})"></textarea>
+          ${padMaxInput}
           <div class="input-hint">1行1件で入力してください。入力したデータを行数分ループして使用します。空の場合は自動生成されます。</div>
         </div>
       </div>`;
@@ -561,23 +563,17 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
   window.selectPadCol = function(e, i) {
     e.stopPropagation();
-    // toggle off if already selected
-    if (padColIdx === i) {
-      padColIdx = -1;
-      document.getElementById('col-item-' + i).classList.remove('is-pad');
-      document.getElementById('col-pad-' + i).classList.remove('selected');
-      return;
+    const elItem = document.getElementById('col-item-' + i);
+    const elBtn = document.getElementById('col-pad-' + i);
+    if (padCols.has(i)) {
+      padCols.delete(i);
+      if (elItem) elItem.classList.remove('is-pad');
+      if (elBtn) elBtn.classList.remove('selected');
+    } else {
+      padCols.add(i);
+      if (elItem) elItem.classList.add('is-pad');
+      if (elBtn) elBtn.classList.add('selected');
     }
-    // deselect previous
-    if (padColIdx >= 0) {
-      const prev = document.getElementById('col-item-' + padColIdx);
-      const prevBtn = document.getElementById('col-pad-' + padColIdx);
-      if (prev) prev.classList.remove('is-pad');
-      if (prevBtn) prevBtn.classList.remove('selected');
-    }
-    padColIdx = i;
-    document.getElementById('col-item-' + i).classList.add('is-pad');
-    document.getElementById('col-pad-' + i).classList.add('selected');
   };
 
   window.toggleCol = function(i) {
@@ -600,6 +596,17 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
       badge.textContent = '自動生成';
       badge.className = 'col-auto-badge';
       item.classList.remove('has-data');
+    }
+  };
+
+  window.onPadMaxInput = function(i) {
+    const el = document.getElementById('col-padmax-' + i);
+    if (!el) return;
+    const v = parseInt(el.value);
+    if (Number.isInteger(v) && v >= 0) {
+      columns[i].maxPadPerRow = v;
+    } else {
+      columns[i].maxPadPerRow = Infinity;
     }
   };
 
@@ -781,43 +788,97 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
     // Measure current total
     let currentDataBytes = rows.reduce((s, r) => s + encoder.encode(r).length, 0);
 
-    // Use user-selected pad column, or auto-detect
-    const resolvedPadColIdx = padColIdx >= 0 ? padColIdx : (() => {
-      for (let i = columns.length - 1; i >= 0; i--) {
-        if (columns[i].fixedValues) continue;
-        if (TEXT_TYPES.includes(columns[i].type)) return i;
-      }
-      for (let i = columns.length - 1; i >= 0; i--) {
-        if (!columns[i].fixedValues) return i;
-      }
-      return columns.length - 1;
-    })();
+    // Use user-selected pad columns, or auto-detect single column
+    let resolvedPadCols = Array.from(padCols);
+    if (resolvedPadCols.length === 0) {
+      const single = (() => {
+        for (let i = columns.length - 1; i >= 0; i--) {
+          if (columns[i].fixedValues) continue;
+          if (TEXT_TYPES.includes(columns[i].type)) return i;
+        }
+        for (let i = columns.length - 1; i >= 0; i--) {
+          if (!columns[i].fixedValues) return i;
+        }
+        return columns.length - 1;
+      })();
+      resolvedPadCols = [single];
+    }
 
     const diff = dataBytes - currentDataBytes;
 
     if (diff > 0) {
-      // Need to add padding: distribute extra bytes across all rows
-      const padPerRow = Math.floor(diff / totalRows);
-      const extraOnLast = diff - padPerRow * totalRows;
-      // Use 'xxxxx' token for padding where possible
-      const unit = 'xxxxx';
-      const fullRepeats = Math.floor(padPerRow / unit.length);
-      const rem = padPerRow % unit.length;
-      const pad = unit.repeat(fullRepeats) + 'x'.repeat(rem);
-      // Rebuild rows with padding inserted into padColIdx
+      // Need to add padding: distribute extra bytes across all rows and selected columns
+      const perRowNeed = Math.floor(diff / totalRows);
+      const extraOnLast = diff - perRowNeed * totalRows;
+      const nCols = resolvedPadCols.length;
+      // gather per-column caps (chars per row)
+      const caps = resolvedPadCols.map(ci => {
+        const v = columns[ci].maxPadPerRow;
+        return (Number.isFinite(v) ? v : Infinity);
+      });
+      // quick feasibility check
+      let possiblePerRow = 0;
+      let hasInf = false;
+      for (let v of caps) { if (!isFinite(v)) { hasInf = true; break; } possiblePerRow += v; }
+      if (!hasInf && possiblePerRow * totalRows < diff) {
+        alert('選択したPAD列の上限では指定サイズに到達できません。PAD上限を増やすか、他の列を選択してください。');
+        return;
+      }
+      // distribute perRowNeed across columns respecting caps
+      function distributePerRow(need, caps) {
+        const n = caps.length; let assigned = new Array(n).fill(0);
+        let remaining = need;
+        let capsRem = caps.slice();
+        while (remaining > 0) {
+          let expandable = 0; for (let j = 0; j < n; j++) if (assigned[j] < capsRem[j]) expandable++;
+          if (expandable === 0) break;
+          const give = Math.ceil(remaining / expandable);
+          let changed = false;
+          for (let j = 0; j < n; j++) {
+            const space = capsRem[j] - assigned[j];
+            if (space <= 0) continue;
+            const take = Math.min(give, space, remaining);
+            if (take > 0) {
+              assigned[j] += take; remaining -= take; changed = true;
+              if (remaining <= 0) break;
+            }
+          }
+          if (!changed) break;
+        }
+        return {assigned, remaining};
+      }
+      const {assigned, remaining} = distributePerRow(perRowNeed, caps);
+      if (remaining > 0) {
+        alert('PAD上限の制約により割り当てられないバイトがあります。上限を増やすか列を追加してください。');
+        return;
+      }
+      // prepare pad strings per column
+      const padStrs = assigned.map(n => n > 0 ? 'x'.repeat(n) : '');
+      // extraOnLast distribution for last row
+      const extraForLast = new Array(nCols).fill(0);
+      let remLast = extraOnLast;
+      for (let j = 0; j < nCols && remLast > 0; j++) {
+        const avail = (isFinite(caps[j]) ? caps[j] - assigned[j] : remLast);
+        const take = Math.min(avail, remLast);
+        extraForLast[j] = take;
+        remLast -= take;
+      }
+      if (remLast > 0) {
+        alert('PAD上限により最終行の追加バイトを割り当てられません。上限を増やすか列を追加してください。');
+        return;
+      }
+      // Rebuild rows with padding inserted into multiple columns
       for (let i = 0; i < totalRows; i++) {
-        const extraForThis = (i === totalRows - 1) ? extraOnLast : 0;
-        const extraFull = Math.floor(extraForThis / unit.length);
-        const extraRem = extraForThis % unit.length;
-        const rowPad = pad + unit.repeat(extraFull) + 'x'.repeat(extraRem);
-        rows[i] = buildRowWithPad(i, resolvedPadColIdx, rowPad);
+        const isLast = (i === totalRows - 1);
+        const perColPad = padStrs.map((s, idx) => s + (isLast && extraForLast[idx] ? 'x'.repeat(extraForLast[idx]) : ''));
+        rows[i] = buildRowWithPads(i, resolvedPadCols, perColPad);
       }
     } else if (diff < 0) {
-      // Need to trim: truncate padColIdx values
-      // Recalculate how much to cut per row
+      // Need to trim: if multiple pad cols chosen, trim from last selected column first
       const cutPerRow = Math.ceil(-diff / totalRows);
+      const targetCol = resolvedPadCols[resolvedPadCols.length - 1];
       for (let i = 0; i < totalRows; i++) {
-        rows[i] = buildRowTrimmed(i, resolvedPadColIdx, cutPerRow);
+        rows[i] = buildRowTrimmed(i, targetCol, cutPerRow);
       }
     }
 
@@ -834,6 +895,18 @@ document.querySelectorAll('.nav-item[data-tool]').forEach(item => {
 
     const unitLabel = unitButtons.querySelector('.active').dataset.unit;
     await finalizeAndDownload(chunks, `test_data_${totalRows}rows_${sizeInput.value}${unitLabel}.csv`);
+  }
+
+  function buildRowWithPads(rowIdx, padColsArr, perColPad) {
+    return columns.map((c, ci) => {
+      let v = generateValue(c, rowIdx, ci);
+      const pos = padColsArr.indexOf(ci);
+      if (pos >= 0) {
+        v = v + (perColPad[pos] || '');
+      }
+      return (v.includes(',') || v.includes('\n') || v.includes('"'))
+        ? `"${v.replace(/"/g, '""')}"` : v;
+    }).join(',') + '\n';
   }
 
   function buildRowWithPad(rowIdx, padColIdx, pad) {
